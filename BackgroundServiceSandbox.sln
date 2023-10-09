@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkServiceSeven", "WorkServiceSeven\WorkServiceSeven\WorkServiceSeven.csproj", "{E41402E8-09C1-4A75-AC79-7852B74DC42D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkServiceSeven", "WorkServiceSeven\WorkServiceSeven.csproj", "{E41402E8-09C1-4A75-AC79-7852B74DC42D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkServiceEight", "WorkServiceEight\WorkServiceEight.csproj", "{0AEFA0C6-D795-48C8-9525-DC262E1D0933}"
 EndProject
