@@ -5,7 +5,10 @@ IHostBuilder builder = Host.CreateDefaultBuilder(args);
 builder.ConfigureServices((context, services) =>
 {
     services.AddHostedService<Worker7>();
-    services.Configure<MySettings>(context.Configuration.GetSection(nameof(MySettings)));
+    services.AddOptions<MySettings>()
+        .BindConfiguration(nameof(MySettings))
+        .ValidateDataAnnotations()
+        .ValidateOnStart();
 });
 
 IHost host = builder.Build();

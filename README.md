@@ -35,9 +35,14 @@ host.Run();
 
 ### Example Settings Class and Config
 
+- Relies on [Microsoft.Extensions.Options.DataAnnotations](https://www.nuget.org/packages/Microsoft.Extensions.Options.DataAnnotations) NuGet package to make `ValidateDataAnnotations()` available.
+
 ```csharp
+using System.ComponentModel.DataAnnotations;
+
 public class MySettings
 {
+    [Required]
     public string Foo { get; set; }
     public int Bar { get; set; }
     public bool Fizz { get; set; }
@@ -48,7 +53,7 @@ public class MySettings
 ```json
 {
   "MySettings": {
-    "Foo": "Some String Value from AppSettings 7",
+    "Foo": "Some Setting",
     "Bar": 38,
     "Fizz": true,
     "Buzz": "2023-10-09T23:27:52.7454651+00:00"
@@ -61,12 +66,50 @@ public class MySettings
 ```csharp
 builder.ConfigureServices((context, services) =>
 {
-    services.Configure<MySettings>(context.Configuration.GetSection(nameof(MySettings)));
+    services.AddOptions<MySettings>()
+        .BindConfiguration(nameof(MySettings))
+        .ValidateDataAnnotations()
+        .ValidateOnStart();
 });
 ```
 
 ### .NET 8
 
 ```csharp
-builder.Services.Configure<MySettings>(builder.Configuration.GetSection(nameof(MySettings)));
+builder.Services.AddOptions<MySettings>()
+    .BindConfiguration(nameof(MySettings))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+```
+
+#### Validation Error Example
+
+```
+Unhandled exception. Microsoft.Extensions.Options.OptionsValidationException: DataAnnotation validation failed for 'MySettings' members: 'Foo' with the error: 'The Foo field is required.'.
+   at Microsoft.Extensions.Options.OptionsFactory`1.Create(String name)                                                                                                                     
+   at Microsoft.Extensions.Options.UnnamedOptionsManager`1.get_Value()                                                                                                                      
+   at WorkServiceSeven.Worker7..ctor(ILogger`1 logger, IOptions`1 settings) in D:\Dev\BackgroundServiceSandbox\WorkServiceSeven\Worker7.cs:line 14                                  
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)                                                                        
+   at System.Reflection.ConstructorInvoker.Invoke(Object obj, IntPtr* args, BindingFlags invokeAttr)                                                                                        
+   at System.Reflection.RuntimeConstructorInfo.Invoke(BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)                                                     
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)              
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)                                              
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitRootCache(ServiceCallSite callSite, RuntimeResolverContext context)                               
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)                                                  
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitIEnumerable(IEnumerableCallSite enumerableCallSite, RuntimeResolverContext context)               
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)                                              
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitRootCache(ServiceCallSite callSite, RuntimeResolverContext context)                               
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)                                                  
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)                                    
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.CreateServiceAccessor(Type serviceType)                                                                                      
+   at System.Collections.Concurrent.ConcurrentDictionary`2.GetOrAdd(TKey key, Func`2 valueFactory)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(Type serviceType, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(IServiceProvider provider, Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at Microsoft.Extensions.Hosting.Internal.Host.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Run(IHost host)
+   at Program.<Main>$(String[] args) in D:\Dev\BackgroundServiceSandbox\WorkServiceSeven\Program.cs:line 16
 ```
