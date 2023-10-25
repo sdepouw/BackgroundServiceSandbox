@@ -1,20 +1,20 @@
 using Core7Library;
 using Core7Library.CatFacts;
-using Microsoft.Extensions.Http;
+using Core7Library.TypedHttpClient;
 using Microsoft.Extensions.Options;
 
 namespace WorkServiceEight;
 
-public class Worker8(ILogger<Worker8> logger, IOptions<MySettings> settings, ICatFactsClientFactory catFactsClientFactory) : BackgroundService
+public class Worker8(ILogger<Worker8> logger, IOptions<MySettings> settings, ITypedHttpClientFactory<ICatFactsClient> httpClientFactory) : BackgroundService
 {
     private readonly ILogger<Worker8> _logger = logger;
     private readonly MySettings _settings = settings.Value;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        SomeProc proc1 = new("1", catFactsClientFactory);
-        SomeProc proc2 = new("2", catFactsClientFactory);
-        SomeProc proc3 = new("3", catFactsClientFactory);
+        SomeProc proc1 = new("1", httpClientFactory);
+        SomeProc proc2 = new("2", httpClientFactory);
+        SomeProc proc3 = new("3", httpClientFactory);
 
         stoppingToken.Register(() => proc1.Stop());
         stoppingToken.Register(() => proc2.Stop());
@@ -32,14 +32,14 @@ public class Worker8(ILogger<Worker8> logger, IOptions<MySettings> settings, ICa
     }
 }
 
-public class SomeProc(string name, ICatFactsClientFactory catFactsClientFactory)
+public class SomeProc(string name, ITypedHttpClientFactory<ICatFactsClient> catFactsHttpClientFactory)
 {
     public bool DontStopMeNow { get; private set; }
     private string Name { get; set; } = name;
 
     public async Task Start()
     {
-        var catFactsClient = catFactsClientFactory.CreateClient();
+        var catFactsClient = catFactsHttpClientFactory.CreateClient();
         DontStopMeNow = true;
         Console.WriteLine("Starting {0}. Don't stop me now!", Name);
         for (int delay = 0; delay < 10; delay++)

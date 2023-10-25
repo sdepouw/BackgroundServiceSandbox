@@ -1,5 +1,6 @@
 using Core7Library;
 using Core7Library.CatFacts;
+using Core7Library.TypedHttpClient;
 using Refit;
 using WorkServiceEight;
 
@@ -18,7 +19,7 @@ builder.Services.AddRefitClient<ICatFactsClient>()
         c.BaseAddress = new Uri(catFactsClientSettings.Host);
     });
 
-builder.Services.AddTransient<ICatFactsClientFactory, CatFactsClientFactory>();
+builder.Services.AddTransient<ITypedHttpClientFactory<ICatFactsClient>, TypedHttpClientFactory>();
 
 IHost host = builder.Build();
 host.Run();
