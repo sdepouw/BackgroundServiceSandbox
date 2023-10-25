@@ -18,6 +18,8 @@ builder.ConfigureServices((hostBuilderContext, services) =>
                 .Get<MySettings>()!.CatFactsClientSettings;
             c.BaseAddress = new Uri(catFactsClientSettings.Host);
         });
+
+    services.AddTransient<ICatFactsClientFactory, CatFactsClientFactory>();
 });
 
 IHost host = builder.Build();

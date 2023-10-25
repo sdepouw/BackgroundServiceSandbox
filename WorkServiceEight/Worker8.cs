@@ -1,18 +1,19 @@
 using Core7Library;
+using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Options;
 
 namespace WorkServiceEight;
 
-public class Worker8(ILogger<Worker8> logger, IOptions<MySettings> settings, ICatFactsClient catFactsClient) : BackgroundService
+public class Worker8(ILogger<Worker8> logger, IOptions<MySettings> settings, ICatFactsClientFactory catFactsClientFactory) : BackgroundService
 {
     private readonly ILogger<Worker8> _logger = logger;
     private readonly MySettings _settings = settings.Value;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        SomeProc proc1 = new("1", catFactsClient);
-        SomeProc proc2 = new("2", catFactsClient);
-        SomeProc proc3 = new("3", catFactsClient);
+        SomeProc proc1 = new("1", catFactsClientFactory);
+        SomeProc proc2 = new("2", catFactsClientFactory);
+        SomeProc proc3 = new("3", catFactsClientFactory);
 
         stoppingToken.Register(() => proc1.Stop());
         stoppingToken.Register(() => proc2.Stop());
@@ -30,13 +31,14 @@ public class Worker8(ILogger<Worker8> logger, IOptions<MySettings> settings, ICa
     }
 }
 
-public class SomeProc(string name, ICatFactsClient catFactsClient)
+public class SomeProc(string name, ICatFactsClientFactory catFactsClientFactory)
 {
     public bool DontStopMeNow { get; private set; }
     private string Name { get; set; } = name;
 
     public async Task Start()
     {
+        var catFactsClient = catFactsClientFactory.CreateClient();
         DontStopMeNow = true;
         Console.WriteLine("Starting {0}. Don't stop me now!", Name);
         for (int delay = 0; delay < 10; delay++)

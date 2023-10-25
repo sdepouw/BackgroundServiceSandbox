@@ -18,5 +18,7 @@ builder.Services.AddRefitClient<ICatFactsClient>()
         c.BaseAddress = new Uri(catFactsClientSettings.Host);
     });
 
+builder.Services.AddTransient<ICatFactsClientFactory, CatFactsClientFactory>();
+
 IHost host = builder.Build();
 host.Run();

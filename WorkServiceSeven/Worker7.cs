@@ -7,18 +7,19 @@ public class Worker7 : BackgroundService
 {
     private readonly ILogger<Worker7> _logger;
     private readonly MySettings _settings;
-    private readonly ICatFactsClient _catFactsClient;
+    private readonly ICatFactsClientFactory _catFactsClientFactory;
 
-    public Worker7(ILogger<Worker7> logger, IOptions<MySettings> settings, ICatFactsClient catFactsClient)
+    public Worker7(ILogger<Worker7> logger, IOptions<MySettings> settings, ICatFactsClientFactory catFactsClientFactory)
     {
         _logger = logger;
         _settings = settings.Value;
-        _catFactsClient = catFactsClient;
+        _catFactsClientFactory = catFactsClientFactory;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        List<CatFact> theFacts = await _catFactsClient.GetTheFacts();
+        var catFactsClient = _catFactsClientFactory.CreateClient();
+        List<CatFact> theFacts = await catFactsClient.GetTheFacts();
         Console.WriteLine("Found {0} Cat Facts!", theFacts.Count);
         while (!stoppingToken.IsCancellationRequested)
         {
