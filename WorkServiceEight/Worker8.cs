@@ -3,16 +3,16 @@ using Microsoft.Extensions.Options;
 
 namespace WorkServiceEight;
 
-public class Worker8(ILogger<Worker8> logger, IOptions<MySettings> settings) : BackgroundService
+public class Worker8(ILogger<Worker8> logger, IOptions<MySettings> settings, ICatFactsClient catFactsClient) : BackgroundService
 {
     private readonly ILogger<Worker8> _logger = logger;
     private readonly MySettings _settings = settings.Value;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        SomeProc proc1 = new("1");
-        SomeProc proc2 = new("2");
-        SomeProc proc3 = new("3");
+        SomeProc proc1 = new("1", catFactsClient);
+        SomeProc proc2 = new("2", catFactsClient);
+        SomeProc proc3 = new("3", catFactsClient);
 
         stoppingToken.Register(() => proc1.Stop());
         stoppingToken.Register(() => proc2.Stop());
@@ -30,7 +30,7 @@ public class Worker8(ILogger<Worker8> logger, IOptions<MySettings> settings) : B
     }
 }
 
-public class SomeProc(string name)
+public class SomeProc(string name, ICatFactsClient catFactsClient)
 {
     public bool DontStopMeNow { get; private set; }
     private string Name { get; set; } = name;
@@ -44,7 +44,9 @@ public class SomeProc(string name)
             Console.WriteLine("{0} working...", Name);
             await Task.Delay(1000);
         }
-        Console.WriteLine("{0} Done!", Name);
+
+        List<CatFact> theFacts = await catFactsClient.GetTheFacts();
+        Console.WriteLine("{0} Done! Found {1} Cat Facts!", Name, theFacts.Count);
         DontStopMeNow = false;
     }
 

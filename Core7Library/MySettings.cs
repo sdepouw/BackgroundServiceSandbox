@@ -9,4 +9,5 @@ public class MySettings
     public int Bar { get; set; }
     public bool Fizz { get; set; }
     public DateTimeOffset Buzz { get; set; }
+    public CatFactsClientSettings CatFactsClientSettings { get; set; }
 }
