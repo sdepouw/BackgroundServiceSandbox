@@ -1,4 +1,5 @@
 using Core7Library;
+using Core7Library.CatFacts;
 using Refit;
 using WorkServiceSeven;
 
@@ -13,7 +14,6 @@ builder.ConfigureServices((hostBuilderContext, services) =>
     services.AddRefitClient<ICatFactsClient>()
         .ConfigureHttpClient(c =>
         {
-            // TODO: Is there a cleaner way to access application settings at this point?
             var catFactsClientSettings = hostBuilderContext.Configuration.GetSection(nameof(MySettings))
                 .Get<MySettings>()!.CatFactsClientSettings;
             c.BaseAddress = new Uri(catFactsClientSettings.Host);

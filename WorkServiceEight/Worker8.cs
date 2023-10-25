@@ -1,4 +1,5 @@
 using Core7Library;
+using Core7Library.CatFacts;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Options;
 

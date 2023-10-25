@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Core7Library;
+namespace Core7Library.CatFacts;
 
 public class CatFactsClientFactory : ICatFactsClientFactory
 {

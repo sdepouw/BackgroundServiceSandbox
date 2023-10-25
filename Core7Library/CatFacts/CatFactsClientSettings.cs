@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Core7Library;
+namespace Core7Library.CatFacts;
 
 public class CatFactsClientSettings
 {
