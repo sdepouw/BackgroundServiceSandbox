@@ -113,3 +113,10 @@ Unhandled exception. Microsoft.Extensions.Options.OptionsValidationException: Da
    at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Run(IHost host)
    at Program.<Main>$(String[] args) in D:\Dev\BackgroundServiceSandbox\WorkServiceSeven\Program.cs:line 16
 ```
+
+## Using Typed HttpClient and Refit, Without Lasting Too Long
+
+[Refit](https://github.com/reactiveui/refit) is a handy way to quickly get some API access going, and I wanted to play with it here. It's worked out well, relying on typed HttpClient injection to get the job done. For background services, i.e. long-running, practically-singleton instances, however, typed instances of HttpClient (which amounts to long-lasting HttpClient instances) is not recommended, as HttpClient instances are meant to be used in short bursts. Compare the lifetime of a long-running background service to, say, an MVC API request. The latter is much more amenable to typed clients than the former.
+
+
+As such, I combined Refit's tyuped client creation with how `IHttpFactory` typically works: Wrapping up creation of instances in my owh `ITypedHttpClient<TTypedHttpClient>` interface, where `CreateClient()` can be called in limited scope to make the HttpClient lifetimes nice and short. With those in play, this sandbox repository now fetches Cat Facts in both .NET 7 and .NET 8 examples. I abstracted the setup into `ServiceCollectionExtensions.AddRefitHttpClientAndFactory<TTypedHttpClient>` to reduce repetition, [which you can view here](https://github.com/sdepouw/BackgroundServiceSandbox/blob/main/Core7Library/Extensions/ServiceCollectionExtensions.cs#L10). My implementation assumes you want to set a host for the custom client. Further customizations can be exposed in this extension method if needed.
