@@ -1,7 +1,7 @@
 using Core7Library;
 using Core7Library.CatFacts;
-using Core7Library.TypedHttpClient;
-using Refit;
+using Core7Library.Extensions;
+
 using WorkServiceEight;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
@@ -11,15 +11,9 @@ builder.Services.AddOptions<MySettings>()
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
-builder.Services.AddRefitClient<ICatFactsClient>()
-    .ConfigureHttpClient(c =>
-    {
-        var catFactsClientSettings = builder.Configuration.GetSection(nameof(MySettings))
-            .Get<MySettings>()!.CatFactsClientSettings;
-        c.BaseAddress = new Uri(catFactsClientSettings.Host);
-    });
+var catFactsClientSettings = builder.Configuration.GetRequiredConfig<MySettings>().CatFactsClientSettings;
 
-builder.Services.AddTransient<ITypedHttpClientFactory<ICatFactsClient>, TypedHttpClientFactory>();
+builder.Services.AddRefitHttpClientAndFactory<ICatFactsClient>(catFactsClientSettings.Host);
 
 IHost host = builder.Build();
 host.Run();
