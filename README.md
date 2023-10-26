@@ -118,5 +118,18 @@ Unhandled exception. Microsoft.Extensions.Options.OptionsValidationException: Da
 
 [Refit](https://github.com/reactiveui/refit) is a handy way to quickly get some API access going, and I wanted to play with it here. It's worked out well, relying on typed HttpClient injection to get the job done. For background services, i.e. long-running, practically-singleton instances, however, typed instances of HttpClient (which amounts to long-lasting HttpClient instances) is not recommended, as HttpClient instances are meant to be used in short bursts. Compare the lifetime of a long-running background service to, say, an MVC API request. The latter is much more amenable to typed clients than the former.
 
+As such, I added a line to limit the lifetime of the handler to 10 minutes. This lets us still inject `ICatFactsClient` directly as we have before, but won't run into potential issues with having a too-long-running `HttpClient` instance.
 
-As such, I combined Refit's tyuped client creation with how `IHttpFactory` typically works: Wrapping up creation of instances in my owh `ITypedHttpClient<TTypedHttpClient>` interface, where `CreateClient()` can be called in limited scope to make the HttpClient lifetimes nice and short. With those in play, this sandbox repository now fetches Cat Facts in both .NET 7 and .NET 8 examples. I abstracted the setup into `ServiceCollectionExtensions.AddRefitHttpClientAndFactory<TTypedHttpClient>` to reduce repetition, [which you can view here](https://github.com/sdepouw/BackgroundServiceSandbox/blob/main/Core7Library/Extensions/ServiceCollectionExtensions.cs#L10). My implementation assumes you want to set a host for the custom client. Further customizations can be exposed in this extension method if needed.
+### .NET 7
+```csharp
+services.AddRefitClient<ICatFactsClient>()
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri(catFactsClientSettings.Host))
+    .SetHandlerLifetime(TimeSpan.FromMinutes(10));
+```
+    
+### .NET 8
+```csharp
+builder.Services.AddRefitClient<ICatFactsClient>()
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri(catFactsClientSettings.Host))
+    .SetHandlerLifetime(TimeSpan.FromMinutes(10));
+```

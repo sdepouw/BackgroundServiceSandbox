@@ -1,6 +1,7 @@
 using Core7Library;
 using Core7Library.CatFacts;
 using Core7Library.Extensions;
+using Refit;
 using WorkServiceSeven;
 
 IHostBuilder builder = Host.CreateDefaultBuilder(args);
@@ -12,7 +13,9 @@ builder.ConfigureServices((hostBuilderContext, services) =>
         .ValidateDataAnnotations()
         .ValidateOnStart();
     var catFactsClientSettings = hostBuilderContext.Configuration.GetRequiredConfig<MySettings>().CatFactsClientSettings;
-    services.AddRefitHttpClientAndFactory<ICatFactsClient>(catFactsClientSettings.Host);
+    services.AddRefitClient<ICatFactsClient>()
+        .ConfigureHttpClient(c => c.BaseAddress = new Uri(catFactsClientSettings.Host))
+        .SetHandlerLifetime(TimeSpan.FromMinutes(10));
 });
 
 IHost host = builder.Build();

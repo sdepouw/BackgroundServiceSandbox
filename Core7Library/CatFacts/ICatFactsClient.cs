@@ -1,9 +1,8 @@
-﻿using Core7Library.TypedHttpClient;
-using Refit;
+﻿using Refit;
 
 namespace Core7Library.CatFacts;
 
-public interface ICatFactsClient : ITypedHttpClient
+public interface ICatFactsClient
 {
     [Get("/facts/")]
     Task<List<CatFact>> GetTheFacts();

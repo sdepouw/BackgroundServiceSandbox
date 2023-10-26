@@ -1,6 +1,5 @@
 using Core7Library;
 using Core7Library.CatFacts;
-using Core7Library.TypedHttpClient;
 using Microsoft.Extensions.Options;
 
 namespace WorkServiceSeven;
@@ -9,19 +8,18 @@ public class Worker7 : BackgroundService
 {
     private readonly ILogger<Worker7> _logger;
     private readonly MySettings _settings;
-    private readonly ITypedHttpClientFactory<ICatFactsClient> _catFactsHttpClientFactory;
+    private readonly ICatFactsClient _catFactsHttpClient;
 
-    public Worker7(ILogger<Worker7> logger, IOptions<MySettings> settings, ITypedHttpClientFactory<ICatFactsClient> catFactsHttpClientFactory)
+    public Worker7(ILogger<Worker7> logger, IOptions<MySettings> settings, ICatFactsClient catFactsHttpClient)
     {
         _logger = logger;
         _settings = settings.Value;
-        _catFactsHttpClientFactory = catFactsHttpClientFactory;
+        _catFactsHttpClient = catFactsHttpClient;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var catFactsClient = _catFactsHttpClientFactory.CreateClient();
-        List<CatFact> theFacts = await catFactsClient.GetTheFacts();
+        List<CatFact> theFacts = await _catFactsHttpClient.GetTheFacts();
         Console.WriteLine("Found {0} Cat Facts!", theFacts.Count);
         while (!stoppingToken.IsCancellationRequested)
         {
