@@ -1,4 +1,3 @@
-using Core7Library;
 using Core7Library.CatFacts;
 using Microsoft.Extensions.Options;
 
@@ -6,11 +5,11 @@ namespace WorkServiceEight;
 
 public class Worker8(ILogger<Worker8> logger, IOptions<MySettings> settings, ICatFactsClient catFactsClient) : BackgroundService
 {
-    private readonly ILogger<Worker8> _logger = logger;
     private readonly MySettings _settings = settings.Value;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        logger.LogInformation("Current Environment: {EnvironmentName}", _settings.EnvironmentName);
         SomeProc proc1 = new("1", catFactsClient);
         SomeProc proc2 = new("2", catFactsClient);
         SomeProc proc3 = new("3", catFactsClient);

@@ -3,16 +3,15 @@ using Core7Library.CatFacts;
 using Core7Library.Extensions;
 using Refit;
 using WorkServiceSeven;
+using EnvironmentName = Core7Library.EnvironmentName;
 
 IHostBuilder builder = Host.CreateDefaultBuilder(args);
-builder.ConfigureServices((hostBuilderContext, services) =>
+
+builder
+    .AddSettings<MySettings>()
+    .ConfigureServices((hostBuilderContext, services) =>
 {
     services.AddHostedService<Worker7>();
-    services.AddOptions<MySettings>()
-        .BindConfiguration(nameof(MySettings))
-        .ValidateDataAnnotations()
-        .ValidateOnStart()
-        .Configure(s => s.EnvironmentName = hostBuilderContext.HostingEnvironment.EnvironmentName);
     MySettings requiredConfig = hostBuilderContext.Configuration.GetRequiredConfig<MySettings>();
     var catFactsClientSettings = requiredConfig.CatFactsClientSettings;
     services.AddRefitClient<ICatFactsClient>()
