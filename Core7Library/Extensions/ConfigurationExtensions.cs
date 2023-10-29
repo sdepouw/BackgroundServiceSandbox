@@ -5,7 +5,7 @@ namespace Core7Library.Extensions;
 public static class ConfigurationExtensions
 {
     /// <summary>
-    /// Gets strongly-typed <typeparam name="TSettings" /> settings from configuration
+    /// Gets strongly-typed <typeparamref name="TSettings" /> from configuration
     /// </summary>
     /// <exception cref="ApplicationException">Thrown when expected configuration section is missing</exception>
     public static TSettings GetRequiredSettings<TSettings>(this IConfiguration config)
