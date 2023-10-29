@@ -11,5 +11,6 @@ public class MySettings : SettingsBase
     public int Bar { get; set; }
     public bool Fizz { get; set; }
     public DateTimeOffset Buzz { get; set; }
+    [Required]
     public CatFactsClientSettings CatFactsClientSettings { get; set; }
 }
