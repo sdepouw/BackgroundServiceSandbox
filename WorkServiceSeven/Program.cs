@@ -6,7 +6,7 @@ using WorkServiceSeven;
 IHostBuilder builder = Host.CreateDefaultBuilder(args);
 
 builder
-    .AddSettings<MySettings>()
+    .AddBaseSettings<MySettings>()
     .ConfigureServices((hostBuilderContext, services) =>
 {
     services.AddHostedService<Worker7>();

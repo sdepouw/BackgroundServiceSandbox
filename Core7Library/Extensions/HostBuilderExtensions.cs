@@ -4,7 +4,7 @@ namespace Core7Library.Extensions;
 
 public static class HostBuilderExtensions
 {
-    public static IHostBuilder AddCoreSettings<TSettings>(this IHostBuilder builder)
+    public static IHostBuilder AddBaseSettings<TSettings>(this IHostBuilder builder)
         where TSettings : SettingsBase
     {
         return builder.ConfigureServices((hostBuilderContext, services) =>
@@ -25,7 +25,7 @@ public static class HostBuilderExtensions
 
 public static class HostApplicationBuilderExtensions
 {
-    public static HostApplicationBuilder AddCoreSettings<TSettings>(this HostApplicationBuilder builder)
+    public static HostApplicationBuilder AddBaseSettings<TSettings>(this HostApplicationBuilder builder)
         where TSettings : SettingsBase
     {
         builder.Services.AddRequiredSettings<TSettings>(builder.Environment);

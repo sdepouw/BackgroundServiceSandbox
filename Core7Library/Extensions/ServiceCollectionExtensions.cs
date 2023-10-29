@@ -18,7 +18,7 @@ public static class ServiceCollectionExtensions
         where TSettings : class
     {
         return services.AddOptions<TSettings>()
-            .BindConfiguration(nameof(TSettings))
+            .BindConfiguration(typeof(TSettings).Name)
             .ValidateDataAnnotations()
             .ValidateOnStart();
     }

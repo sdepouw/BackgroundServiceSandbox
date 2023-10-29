@@ -4,7 +4,7 @@ using Refit;
 using WorkServiceEight;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
-builder.AddSettings<MySettings>();
+builder.AddBaseSettings<MySettings>();
 builder.Services.AddHostedService<Worker8>();
 var catFactsClientSettings = builder.Configuration.GetRequiredConfig<MySettings>().CatFactsClientSettings;
 builder.Services.AddRefitClient<ICatFactsClient>()
