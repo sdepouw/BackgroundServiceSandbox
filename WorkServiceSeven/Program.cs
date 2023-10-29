@@ -11,8 +11,10 @@ builder.ConfigureServices((hostBuilderContext, services) =>
     services.AddOptions<MySettings>()
         .BindConfiguration(nameof(MySettings))
         .ValidateDataAnnotations()
-        .ValidateOnStart();
-    var catFactsClientSettings = hostBuilderContext.Configuration.GetRequiredConfig<MySettings>().CatFactsClientSettings;
+        .ValidateOnStart()
+        .Configure(s => s.EnvironmentName = hostBuilderContext.HostingEnvironment.EnvironmentName);
+    MySettings requiredConfig = hostBuilderContext.Configuration.GetRequiredConfig<MySettings>();
+    var catFactsClientSettings = requiredConfig.CatFactsClientSettings;
     services.AddRefitClient<ICatFactsClient>()
         .ConfigureHttpClient(c => c.BaseAddress = new Uri(catFactsClientSettings.Host))
         .SetHandlerLifetime(TimeSpan.FromMinutes(10));

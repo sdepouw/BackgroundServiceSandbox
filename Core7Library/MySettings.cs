@@ -11,4 +11,6 @@ public class MySettings
     public bool Fizz { get; set; }
     public DateTimeOffset Buzz { get; set; }
     public CatFactsClientSettings CatFactsClientSettings { get; set; }
+    [Required]
+    public string EnvironmentName { get; set; }
 }
