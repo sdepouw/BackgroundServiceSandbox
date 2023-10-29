@@ -1,4 +1,3 @@
-using Core7Library;
 using Core7Library.CatFacts;
 using Core7Library.Extensions;
 using Refit;

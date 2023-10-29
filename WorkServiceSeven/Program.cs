@@ -1,9 +1,7 @@
-using Core7Library;
 using Core7Library.CatFacts;
 using Core7Library.Extensions;
 using Refit;
 using WorkServiceSeven;
-using EnvironmentName = Core7Library.EnvironmentName;
 
 IHostBuilder builder = Host.CreateDefaultBuilder(args);
 
