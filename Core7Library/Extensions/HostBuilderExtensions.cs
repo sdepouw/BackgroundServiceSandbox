@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace Core7Library.Extensions;
 
@@ -34,6 +35,9 @@ public static class HostBuilderContextExtensions
 /// </summary>
 public static class HostApplicationBuilderExtensions
 {
+    /// <summary>
+    /// Sets up <see cref="IOptions{TOptions}"/> for <typeparamref name="TSettings" /> and validates any annotations.
+    /// </summary>
     public static HostApplicationBuilder AddSettings<TSettings>(this HostApplicationBuilder builder)
         where TSettings : class
     {
