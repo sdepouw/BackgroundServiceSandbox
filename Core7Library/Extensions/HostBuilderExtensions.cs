@@ -2,6 +2,9 @@
 
 namespace Core7Library.Extensions;
 
+/// <summary>
+/// Extensions for .NET 7's host builder.
+/// </summary>
 public static class HostBuilderExtensions
 {
     public static IHostBuilder AddBaseSettings<TSettings>(this IHostBuilder builder)
@@ -23,6 +26,21 @@ public static class HostBuilderExtensions
     }
 }
 
+/// <summary>
+/// Extensions for for .NET 7's host builder context.
+/// </summary>
+public static class HostBuilderContextExtensions
+{
+    public static TSettings GetRequiredSettings<TSettings>(this HostBuilderContext hostBuilderContext)
+        where TSettings : class
+    {
+        return hostBuilderContext.Configuration.GetRequiredSettings<TSettings>();
+    }
+}
+
+/// <summary>
+/// Extensions for .NET 8's host builder.
+/// </summary>
 public static class HostApplicationBuilderExtensions
 {
     public static HostApplicationBuilder AddBaseSettings<TSettings>(this HostApplicationBuilder builder)
@@ -37,5 +55,11 @@ public static class HostApplicationBuilderExtensions
     {
         builder.Services.AddRequiredSettings<TSettings>();
         return builder;
+    }
+
+    public static TSettings GetRequiredSettings<TSettings>(this HostApplicationBuilder builder)
+        where TSettings : class
+    {
+        return builder.Configuration.GetRequiredSettings<TSettings>();
     }
 }

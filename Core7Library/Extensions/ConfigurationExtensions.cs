@@ -4,11 +4,16 @@ namespace Core7Library.Extensions;
 
 public static class ConfigurationExtensions
 {
-    public static TConfigSettings GetRequiredConfig<TConfigSettings>(this IConfiguration config)
+    /// <summary>
+    /// Gets strongly-typed <typeparam name="TSettings" /> settings from configuration
+    /// </summary>
+    /// <exception cref="ApplicationException">Thrown when expected configuration section is missing</exception>
+    public static TSettings GetRequiredSettings<TSettings>(this IConfiguration config)
+        where TSettings : class
     {
-        string configSettingsName = typeof(TConfigSettings).Name;
-        TConfigSettings? configSettings = config.GetSection(configSettingsName).Get<TConfigSettings>();
-        if (configSettings == null) throw new ApplicationException($"{configSettingsName} required, but missing!");
-        return configSettings;
+        string settingsName = typeof(TSettings).Name;
+        TSettings? settings = config.GetSection(settingsName).Get<TSettings>();
+        if (settings == null) throw new ApplicationException($"{settingsName} required, but missing!");
+        return settings;
     }
 }
