@@ -1,3 +1,4 @@
+using Core7Library;
 using Core7Library.CatFacts;
 using Microsoft.Extensions.Options;
 
@@ -9,7 +10,7 @@ public class Worker8(ILogger<Worker8> logger, IOptions<MySettings> settings, ICa
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation("Start! Current Environment: {EnvironmentName}", _settings.EnvironmentName);
+        logger.LogInformation("Start! Current Environment: {CurrentEnvironmentName}", CurrentEnvironment.Name);
         SomeProc proc1 = new("1", catFactsClient);
         SomeProc proc2 = new("2", catFactsClient);
         SomeProc proc3 = new("3", catFactsClient);

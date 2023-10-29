@@ -1,3 +1,4 @@
+using Core7Library;
 using Core7Library.CatFacts;
 using Microsoft.Extensions.Options;
 
@@ -18,7 +19,7 @@ public class Worker7 : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Start! Current Environment: {EnvironmentName}", _settings.EnvironmentName);
+        _logger.LogInformation("Start! Current Environment: {CurrentEnvironmentName}", CurrentEnvironment.Name);
         List<CatFact> theFacts = await _catFactsHttpClient.GetTheFacts();
         Console.WriteLine("Found {0} Cat Facts!", theFacts.Count);
         while (!stoppingToken.IsCancellationRequested)

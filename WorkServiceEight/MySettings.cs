@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Core7Library;
 using Core7Library.CatFacts;
 
 namespace WorkServiceEight;
 
-public class MySettings : SettingsBase
+public class MySettings
 {
     [Required]
     public string Foo { get; set; }

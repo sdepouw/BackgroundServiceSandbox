@@ -4,7 +4,7 @@ using Refit;
 using WorkServiceSeven;
 
 IHostBuilder builder = Host.CreateDefaultBuilder(args)
-    .AddBaseSettings<MySettings>()
+    .AddSettings<MySettings>()
     .ConfigureServices((hostBuilderContext, services) =>
     {
         services.AddHostedService<Worker7>();
