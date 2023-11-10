@@ -1,5 +1,6 @@
 using Core7Library.CatFacts;
 using Core7Library.Extensions;
+using Microsoft.Extensions.Http.Logging;
 using Microsoft.Extensions.Options;
 using Refit;
 using WorkServiceSeven;
@@ -22,6 +23,15 @@ IHostBuilder builder = Host.CreateDefaultBuilder(args)
                     var client = providerWithClient.GetRequiredService<IBearerTokenFactory>();
                     return client.GetBearerTokenAsync(cancellationToken);
                 }
+            })
+            .ConfigureHttpMessageHandlerBuilder(builder =>
+            {
+                // new HttpClientHandler().AllowAutoRedirect
+                DelegatingHandler primary = (DelegatingHandler)builder.PrimaryHandler;
+                var inner = (HttpClientHandler)primary.InnerHandler!;
+                inner.AllowAutoRedirect = false;
+                Console.WriteLine(inner.AllowAutoRedirect);
+                // primary.AllowAutoRedirect = false;
             })
             .ConfigureHttpClient(c => c.BaseAddress = new Uri(clientSettings.Host))
             .SetHandlerLifetime(TimeSpan.FromMinutes(10));
