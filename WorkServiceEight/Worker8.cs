@@ -1,10 +1,9 @@
 using Core7Library;
 using Core7Library.CatFacts;
-using Microsoft.Extensions.Options;
 
 namespace WorkServiceEight;
 
-public class Worker8(ILogger<Worker8> logger, IOptions<MySettings> settings, ICatFactsClient catFactsClient) : BackgroundService
+public class Worker8(ILogger<Worker8> logger, ICatFactsClient catFactsClient) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

@@ -20,14 +20,11 @@ public class Worker7 : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Start! Current Environment: {CurrentEnvironmentName}", CurrentEnvironment.Name);
-        List<CatFact> theFacts = await _catFactsHttpClient.GetTheFacts();
-        Console.WriteLine("Found {0} Cat Facts!", theFacts.Count);
         while (!stoppingToken.IsCancellationRequested)
         {
-            _logger.LogInformation("Worker7 running at with version {version}", Environment.Version);
-            _logger.LogInformation("Settings! {Foo} | {Bar} | {Fizz} | {Buzz}",
-                _settings.Foo, _settings.Bar, _settings.Fizz, _settings.Buzz);
-            await Task.Delay(1000, stoppingToken);
+            List<CatFact> theFacts = await _catFactsHttpClient.GetTheFacts();
+            Console.WriteLine("Found {0} Cat Facts!", theFacts.Count);
+            await Task.Delay(500, stoppingToken);
         }
     }
 
