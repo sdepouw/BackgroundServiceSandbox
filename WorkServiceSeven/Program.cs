@@ -30,7 +30,6 @@ IHostBuilder builder = Host.CreateDefaultBuilder(args)
                 DelegatingHandler primary = (DelegatingHandler)builder.PrimaryHandler;
                 var inner = (HttpClientHandler)primary.InnerHandler!;
                 inner.AllowAutoRedirect = false;
-                Console.WriteLine(inner.AllowAutoRedirect);
                 // primary.AllowAutoRedirect = false;
             })
             .ConfigureHttpClient(c => c.BaseAddress = new Uri(clientSettings.Host))
@@ -55,7 +54,6 @@ public class BearerTokenFactory : IBearerTokenFactory
     private bool CachedTokenIsExpired()
     {
         var isExpired = string.IsNullOrWhiteSpace(_cachedToken) || DateTime.UtcNow > _cacheExpiration;
-        Console.WriteLine($"Expired? {isExpired}");
         return isExpired;
     }
 
