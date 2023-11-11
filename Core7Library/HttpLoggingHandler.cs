@@ -1,6 +1,8 @@
 ﻿using System.Net.Http.Headers;
 using Microsoft.Extensions.Logging;
 
+namespace Core7Library;
+
 public class HttpLoggingHandler : DelegatingHandler
 {
     private readonly ILogger<HttpLoggingHandler> _logger;
@@ -18,8 +20,11 @@ public class HttpLoggingHandler : DelegatingHandler
         var msg = $"[{id} -   Request]";
 
         _logger.LogInformation($"{msg}========Start==========");
-        _logger.LogInformation($"{msg} {req.Method} {req.RequestUri.PathAndQuery} {req.RequestUri.Scheme}/{req.Version}");
-        _logger.LogInformation($"{msg} Host: {req.RequestUri.Scheme}://{req.RequestUri.Host}");
+        if (req.RequestUri is not null)
+        {
+            _logger.LogInformation($"{msg} {req.Method} {req.RequestUri.PathAndQuery} {req.RequestUri.Scheme}/{req.Version}");
+            _logger.LogInformation($"{msg} Host: {req.RequestUri.Scheme}://{req.RequestUri.Host}");
+        }
 
         foreach (var header in req.Headers)
             _logger.LogInformation($"{msg} {header.Key}: {string.Join(", ", header.Value)}");
@@ -30,7 +35,7 @@ public class HttpLoggingHandler : DelegatingHandler
                 _logger.LogInformation($"{msg} {header.Key}: {string.Join(", ", header.Value)}");
 
             if (req.Content is StringContent || IsTextBasedContentType(req.Headers) ||
-                this.IsTextBasedContentType(req.Content.Headers))
+                IsTextBasedContentType(req.Content.Headers))
             {
                 var result = await req.Content.ReadAsStringAsync(cancellationToken);
 
@@ -53,44 +58,38 @@ public class HttpLoggingHandler : DelegatingHandler
 
         var resp = response;
 
-        _logger.LogInformation(
-            $"{msg} {req.RequestUri.Scheme.ToUpper()}/{resp.Version} {(int) resp.StatusCode} {resp.ReasonPhrase}");
+        _logger.LogInformation($"{msg} {req.RequestUri?.Scheme.ToUpper()}/{resp.Version} {(int) resp.StatusCode} {resp.ReasonPhrase}");
 
         foreach (var header in resp.Headers)
             _logger.LogInformation($"{msg} {header.Key}: {string.Join(", ", header.Value)}");
 
-        if (resp.Content != null)
+        foreach (var header in resp.Content.Headers)
+            _logger.LogInformation($"{msg} {header.Key}: {string.Join(", ", header.Value)}");
+
+        if (resp.Content is StringContent || IsTextBasedContentType(resp.Headers) || IsTextBasedContentType(resp.Content.Headers))
         {
-            foreach (var header in resp.Content.Headers)
-                _logger.LogInformation($"{msg} {header.Key}: {string.Join(", ", header.Value)}");
+            start = DateTime.Now;
+            var result = await resp.Content.ReadAsStringAsync(cancellationToken);
+            end = DateTime.Now;
 
-            if (resp.Content is StringContent || this.IsTextBasedContentType(resp.Headers) ||
-                this.IsTextBasedContentType(resp.Content.Headers))
-            {
-                start = DateTime.Now;
-                var result = await resp.Content.ReadAsStringAsync();
-                end = DateTime.Now;
-
-                _logger.LogInformation($"{msg} Content:");
-                _logger.LogInformation($"{msg} {result}");
-                _logger.LogInformation($"{msg} Duration: {end - start}");
-            }
+            _logger.LogInformation($"{msg} Content:");
+            _logger.LogInformation($"{msg} {result}");
+            _logger.LogInformation($"{msg} Duration: {end - start}");
         }
 
         _logger.LogInformation($"{msg}==========End==========");
         return response;
     }
 
-    readonly string[] types = new[] {"html", "text", "xml", "json", "txt", "x-www-form-urlencoded"};
+    private readonly string[] _types = new[] {"html", "text", "xml", "json", "txt", "x-www-form-urlencoded"};
 
 
     bool IsTextBasedContentType(HttpHeaders headers)
     {
-        IEnumerable<string> values;
-        if (!headers.TryGetValues("Content-Type", out values))
+        if (!headers.TryGetValues("Content-Type", out IEnumerable<string>? values))
             return false;
         var header = string.Join(" ", values).ToLowerInvariant();
 
-        return types.Any(t => header.Contains(t));
+        return _types.Any(t => header.Contains(t));
     }
 }

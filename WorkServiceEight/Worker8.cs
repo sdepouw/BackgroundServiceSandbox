@@ -1,5 +1,6 @@
 using Core7Library;
 using Core7Library.CatFacts;
+using Refit;
 
 namespace WorkServiceEight;
 
@@ -43,8 +44,8 @@ public class SomeProc(string name, ICatFactsClient catFactsClient)
             await Task.Delay(1000);
         }
 
-        // List<CatFact> theFacts = await catFactsClient.GetTheFactsAsync("facts", CancellationToken.None);
-        // Console.WriteLine("{0} Done! Found {1} Cat Facts!", Name, theFacts.Count);
+        ApiResponse<List<CatFact>?> theFacts = await catFactsClient.GetTheFactsAsync("facts", CancellationToken.None);
+        Console.WriteLine("{0} Done! Found {1} Cat Facts!", Name, theFacts.Content?.Count ?? 0);
         DontStopMeNow = false;
     }
 

@@ -1,7 +1,5 @@
-using System.Diagnostics;
 using Core7Library.CatFacts;
 using Core7Library.Extensions;
-using Microsoft.Extensions.Http.Logging;
 using Microsoft.Extensions.Options;
 using Refit;
 using WorkServiceSeven;
@@ -12,33 +10,22 @@ IHostBuilder builder = Host.CreateDefaultBuilder(args)
     {
 
         services.AddTransient<IBearerTokenFactory, BearerTokenFactory>();
-        services.AddTransient<IOAuthClient, FakeClient>();
+        services.AddTransient<IOAuthClient, FakeOAuthClient>();
         services.AddTransient<ICatFactsService, CatFactsClientService>();
-        // services.AddRefitClient<IOAuthClient>()
-        //     .ConfigureHttpClient(c => c.BaseAddress = new Uri("http://example.com/"));
-        IServiceProvider providerWithClient = services.BuildServiceProvider();
+        // services.AddRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("https://example.com/"));
+
         var clientSettings = hostBuilderContext.GetRequiredSettings<MySettings>().CatFactsClientSettings;
         services.AddHostedService<Worker7>();
-        services.AddRefitClient<ICatFactsClient>(new()
+        IServiceProvider providerWithClient = services.BuildServiceProvider();
+        var refitSettings = new RefitSettings
+        {
+            AuthorizationHeaderValueGetter = (_, cancellationToken) =>
             {
-                AuthorizationHeaderValueGetter = (_, cancellationToken) =>
-                {
-                    var client = providerWithClient.GetRequiredService<IBearerTokenFactory>();
-                    return client.GetBearerTokenAsync(cancellationToken);
-                }
-            })
-            .ConfigureHttpMessageHandlerBuilder(builder =>
-            {
-                // new HttpClientHandler().AllowAutoRedirect
-                DelegatingHandler primary = (DelegatingHandler)builder.PrimaryHandler;
-                var inner = (HttpClientHandler)primary.InnerHandler!;
-                inner.AllowAutoRedirect = false;
-                // primary.AllowAutoRedirect = false;
-            })
-            .ConfigureHttpClient(c => c.BaseAddress = new Uri(clientSettings.Host))
-            .SetHandlerLifetime(TimeSpan.FromMinutes(10))
-            .AddHttpMessageHandler<HttpLoggingHandler>(); // Adding this doesn't break AuthorizationHeaderValueGetter
-        services.AddSingleton<HttpLoggingHandler>();
+                var client = providerWithClient.GetRequiredService<IBearerTokenFactory>();
+                return client.GetBearerTokenAsync(cancellationToken);
+            }
+        };
+        services.AddRefitClient<ICatFactsClient>(c => c.BaseAddress = new Uri(clientSettings.Host), refitSettings, true);
     });
 
 IHost host = builder.Build();
@@ -102,15 +89,14 @@ public interface IOAuthClient
     public Task<AuthToken> GetBearerTokenAsync(CancellationToken cancellationToken);
 }
 
-public class FakeClient : IOAuthClient
+public class FakeOAuthClient : IOAuthClient
 {
-    public async Task<AuthToken> GetBearerTokenAsync(CancellationToken cancellationToken)
+    public Task<AuthToken> GetBearerTokenAsync(CancellationToken cancellationToken)
     {
-        await Task.Delay(5000, cancellationToken);
-        return new AuthToken
+        return Task.FromResult(new AuthToken
         {
             SecondsUntilExpiration = 30,
             Token = $"Foo-{DateTime.UtcNow:s}"
-        };
+        });
     }
 }
