@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using WorkServiceSeven;
+﻿namespace Core7Library.BearerTokenStuff;
 
 public class BearerTokenFactory : IBearerTokenFactory
 {
@@ -14,7 +13,7 @@ public class BearerTokenFactory : IBearerTokenFactory
         return isExpired;
     }
 
-    public BearerTokenFactory(IOAuthClient client, IOptions<MySettings> settings)
+    public BearerTokenFactory(IOAuthClient client)
     {
         _client = client;
     }

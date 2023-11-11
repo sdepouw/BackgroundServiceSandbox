@@ -1,4 +1,5 @@
 ﻿using Core7Library.CatFacts;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace WorkServiceSeven;
@@ -8,10 +9,10 @@ public class CatFactsClientService : ClientServiceBase, ICatFactsService
     private readonly CatFactsClientSettings _settings;
     private readonly ICatFactsClient _catFactsClient;
 
-    public CatFactsClientService(IOptions<MySettings> settings, ILogger<CatFactsClientService> logger, ICatFactsClient catFactsClient)
+    public CatFactsClientService(IOptions<CatFactsClientSettings> settings, ILogger<CatFactsClientService> logger, ICatFactsClient catFactsClient)
         : base (logger)
     {
-        _settings = settings.Value.CatFactsClientSettings;
+        _settings = settings.Value;
         _catFactsClient = catFactsClient;
     }
 
