@@ -1,9 +1,9 @@
+using Core7Library;
 using Core7Library.BearerTokenStuff;
 using Core7Library.CatFacts;
 using Core7Library.Extensions;
 using Refit;
 using WorkServiceEight;
-using WorkServiceSeven;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddHostedService<Worker8>();

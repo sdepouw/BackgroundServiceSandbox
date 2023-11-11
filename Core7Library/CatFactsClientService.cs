@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace WorkServiceSeven;
+namespace Core7Library;
 
 public class CatFactsClientService : ClientServiceBase, ICatFactsService
 {
