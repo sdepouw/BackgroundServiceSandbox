@@ -11,6 +11,7 @@ IHostBuilder builder = Host.CreateDefaultBuilder(args)
     {
         services.AddTransient<IBearerTokenFactory, BearerTokenFactory>();
         services.AddTransient<IOAuthClient, FakeClient>();
+        services.AddTransient<ICatFactsService, CatFactsService>();
         // services.AddRefitClient<IOAuthClient>()
         //     .ConfigureHttpClient(c => c.BaseAddress = new Uri("http://example.com/"));
         IServiceProvider providerWithClient = services.BuildServiceProvider();
