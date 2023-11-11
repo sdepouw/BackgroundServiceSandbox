@@ -1,4 +1,5 @@
-﻿using Refit;
+﻿using System.Text.Json.Serialization;
+using Refit;
 
 namespace Core7Library.CatFacts;
 
@@ -22,6 +23,20 @@ public interface ICatFactsClient
     /// This is not a real route. It'll just 404.
     /// </summary>
     /// <returns>Nothing!</returns>
-    [Get("/this-is-not-real")]
-    Task<ApiResponse<CatFact?>> GetSingleFact(CancellationToken cancellationToken);
+    [Post("/this-is-not-real")]
+    Task<ApiResponse<CatFact?>> GetSingleFact(SomeFakeThing thing, CancellationToken cancellationToken);
+}
+
+public class SomeFakeThing
+{
+    public string Foo { get; set; } = "Bob";
+    public int Bar { get; set; } = 1;
+    [JsonPropertyName("TANSTAAFL")]
+    public List<OtherThing> Things { get; set; } = new() { new(), new(), new() };
+}
+
+public class OtherThing
+{
+    public string Doof { get; set; } = "Doofing";
+    public string Food { get; set; } = "Fooding";
 }

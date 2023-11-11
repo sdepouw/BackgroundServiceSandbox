@@ -34,9 +34,9 @@ public class Worker7 : BackgroundService
             // _logger.LogInformation("Found {0} Cat Facts!", theFacts.Count);
             List<Task> tasks = new()
             {
-                _service.GetTheFactsAsync(stoppingToken),
                 // _service.GetTheFactsAsync(stoppingToken),
-                // _service.Hmmm(stoppingToken)
+                // _service.GetTheFactsAsync(stoppingToken),
+                _service.Hmmm(stoppingToken)
             };
             try
             {
