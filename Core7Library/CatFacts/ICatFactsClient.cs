@@ -2,6 +2,7 @@
 
 namespace Core7Library.CatFacts;
 
+[Headers("Authorization: Bearer")]
 public interface ICatFactsClient
 {
     /// <summary>

@@ -35,8 +35,8 @@ public class Worker7 : BackgroundService
             List<Task> tasks = new()
             {
                 _service.GetTheFactsAsync(stoppingToken),
-                _service.GetTheFactsAsync(stoppingToken),
-                _service.Hmmm(stoppingToken)
+                // _service.GetTheFactsAsync(stoppingToken),
+                // _service.Hmmm(stoppingToken)
             };
             try
             {
