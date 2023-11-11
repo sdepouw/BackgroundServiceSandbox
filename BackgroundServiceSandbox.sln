@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkServiceEight", "WorkSer
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core7Library", "Core7Library\Core7Library.csproj", "{6F1D3CF4-CDF5-4C76-A22F-A8E260E21349}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestingTime", "TestingTime\TestingTime.csproj", "{BE344C56-1269-48E0-BE52-A29BF35E3F67}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{6F1D3CF4-CDF5-4C76-A22F-A8E260E21349}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F1D3CF4-CDF5-4C76-A22F-A8E260E21349}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F1D3CF4-CDF5-4C76-A22F-A8E260E21349}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE344C56-1269-48E0-BE52-A29BF35E3F67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE344C56-1269-48E0-BE52-A29BF35E3F67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE344C56-1269-48E0-BE52-A29BF35E3F67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE344C56-1269-48E0-BE52-A29BF35E3F67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
