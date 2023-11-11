@@ -13,7 +13,14 @@ public interface ICatFactsClient
     /// </summary>
     /// <param name="theRoute">The route to call. Injected instead of hardcoded so that it can be configured</param>
     /// <param name="cancellationToken">CancellationToken to respect.</param>
-    /// <returns></returns>
+    /// <returns>Just the facts.</returns>
     [Get("/{theRoute}")]
     Task<ApiResponse<List<CatFact>?>> GetTheFactsAsync(string theRoute, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// This is not a real route. It'll just 404.
+    /// </summary>
+    /// <returns>Nothing!</returns>
+    [Get("/this-is-not-real")]
+    Task<ApiResponse<CatFact?>> GetSingleFact(CancellationToken cancellationToken);
 }

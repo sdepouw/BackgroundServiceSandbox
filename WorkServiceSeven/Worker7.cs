@@ -30,8 +30,23 @@ public class Worker7 : BackgroundService
         //_logger.LogInformation("Start! Current Environment: {CurrentEnvironmentName}", CurrentEnvironment.Name);
         while (!stoppingToken.IsCancellationRequested)
         {
-            List<CatFact> theFacts = await _service.GetTheFactsAsync(stoppingToken);
-            _logger.LogInformation("Found {0} Cat Facts!", theFacts.Count);
+            // List<CatFact> theFacts = await _service.GetTheFactsAsync(stoppingToken);
+            // _logger.LogInformation("Found {0} Cat Facts!", theFacts.Count);
+            List<Task> tasks = new()
+            {
+                _service.GetTheFactsAsync(stoppingToken),
+                _service.GetTheFactsAsync(stoppingToken),
+                _service.Hmmm(stoppingToken)
+            };
+            try
+            {
+                await Task.WhenAll(tasks);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "OOOPS!");
+            }
+            _logger.LogInformation("Done doing stuff.");
             await Task.Delay(1000 * 60 * 10, stoppingToken);
         }
     }
