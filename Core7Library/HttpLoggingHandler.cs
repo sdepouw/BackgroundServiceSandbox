@@ -31,6 +31,7 @@ public class HttpLoggingHandler : DelegatingHandler
 
         if (req.Content != null)
         {
+            // Not that we'll log headers, but the bearer token will not be set by this point. It gets set after.
             foreach (var header in req.Content.Headers)
                 _logger.LogInformation($"{msg} {header.Key}: {string.Join(", ", header.Value)}");
 
