@@ -18,6 +18,7 @@ public class Worker7 : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        await Task.Delay(500, stoppingToken); // So default log messages have time to write.
         // List<Task> tasks = new();
         // for (int i = 0; i < 10; i++)
         // {
@@ -35,8 +36,8 @@ public class Worker7 : BackgroundService
             List<Task> tasks = new()
             {
                 // _service.GetTheFactsAsync(stoppingToken),
-                // _service.GetTheFactsAsync(stoppingToken),
-                _service.Hmmm(stoppingToken)
+                _service.GetTheFactsAsync(stoppingToken),
+                // _service.Hmmm(stoppingToken)
             };
             try
             {
