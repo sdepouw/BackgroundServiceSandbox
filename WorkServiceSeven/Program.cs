@@ -3,6 +3,7 @@ using Core7Library.BearerTokenStuff;
 using Core7Library.CatFacts;
 using Core7Library.Extensions;
 using Refit;
+using Serilog;
 using WorkServiceSeven;
 
 IHostBuilder builder = Host.CreateDefaultBuilder(args)
@@ -11,6 +12,7 @@ IHostBuilder builder = Host.CreateDefaultBuilder(args)
     .AddSettings<CatFactsClientSettings>()
     .ConfigureServices((hostBuilderContext, services) =>
     {
+        services.AddSerilog(config => config.ReadFrom.Configuration(hostBuilderContext.Configuration));
         services.AddTransient<IBearerTokenFactory, BearerTokenFactory>();
         services.AddTransient<IOAuthClient, FakeOAuthClient>();
         services.AddTransient<ICatFactsService, CatFactsClientService>();
