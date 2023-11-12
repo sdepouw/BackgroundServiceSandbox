@@ -1,5 +1,6 @@
 ﻿using Core7Library.BearerTokenStuff;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Refit;
 
@@ -51,7 +52,8 @@ public static class ServiceCollectionExtensions
             .SetHandlerLifetime(TimeSpan.FromMinutes(handlerLifetimeInMinutes));
         if (enableRequestResponseLogging)
         {
-            builder.AddHttpMessageHandler<HttpLoggingHandler>(); // Adding this doesn't break AuthorizationHeaderValueGetter
+            // Cannot use builder.AddHttpMessageHandler<HttpLoggingHandler>, because Refit and DI mingling throws an exception.
+            builder.AddHttpMessageHandler(svc => new HttpLoggingHandler(svc.GetRequiredService<ILogger<HttpLoggingHandler>>()));
             services.AddSingleton<HttpLoggingHandler>(); // Calling this multiple times seems to be fine.
         }
         return builder;
