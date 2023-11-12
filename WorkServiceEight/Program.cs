@@ -14,9 +14,10 @@ builder.Services.AddSerilog(config => config.ReadFrom.Configuration(builder.Conf
 builder.Services.AddTransient<IBearerTokenFactory, BearerTokenFactory>();
 builder.Services.AddTransient<ICatFactsClientService, CatFactsClientService>();
 
+var mySettings = builder.GetRequiredSettings<MySettings>();
 var catFactsSettings = builder.GetRequiredSettings<CatFactsClientSettings>();
-builder.Services.AddRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("https://example.com/"), enableRequestResponseLogging: true);
-builder.Services.AddRefitClient<ICatFactsClient>(c => c.BaseAddress = new Uri(catFactsSettings.Host), useAuthHeaderGetter: true, enableRequestResponseLogging: true);
+builder.Services.AddRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("https://example.com/"), enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging);
+builder.Services.AddRefitClient<ICatFactsClient>(c => c.BaseAddress = new Uri(catFactsSettings.Host), useAuthHeaderGetter: true, enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging);
 
 IHost host = builder.Build();
 HostInstance.SetHost(host);

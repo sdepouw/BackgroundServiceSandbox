@@ -16,9 +16,10 @@ IHostBuilder builder = Host.CreateDefaultBuilder(args)
         services.AddTransient<IBearerTokenFactory, BearerTokenFactory>();
         services.AddTransient<ICatFactsClientService, CatFactsClientService>();
 
+        var mySettings = hostBuilderContext.GetRequiredSettings<MySettings>();
         var catFactsSettings = hostBuilderContext.GetRequiredSettings<CatFactsClientSettings>();
-        services.AddRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("https://example.com/"), enableRequestResponseLogging: true);
-        services.AddRefitClient<ICatFactsClient>(c => c.BaseAddress = new Uri(catFactsSettings.Host), useAuthHeaderGetter: true, enableRequestResponseLogging: true);
+        services.AddRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("https://example.com/"), enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging);
+        services.AddRefitClient<ICatFactsClient>(c => c.BaseAddress = new Uri(catFactsSettings.Host), useAuthHeaderGetter: true, enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging);
     });
 
 IHost host = builder.Build();
