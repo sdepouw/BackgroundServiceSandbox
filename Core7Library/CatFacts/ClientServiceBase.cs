@@ -33,8 +33,8 @@ public abstract class ClientServiceBase
     /// <param name="ensureSuccessStatusCode">When enabled, throws an <see cref="ApiException"/> if the response status code does not indicate success (default true)</param>
     /// <param name="caller">The name of the calling method, for logging purposes (auto-filled)</param>
     /// <typeparam name="T">The type of object to return</typeparam>
-    protected Task<T?> MakeRequestAsync<T>(Task<ApiResponse<T?>> apiCall, bool ensureSuccessStatusCode = true, [CallerMemberName] string caller = "")
-        where T : class => MakeRequestAsyncInternal(apiCall, null, ensureSuccessStatusCode, caller);
+    protected Task<T?> GetApiResponse<T>(Task<ApiResponse<T?>> apiCall, bool ensureSuccessStatusCode = true, [CallerMemberName] string caller = "")
+        where T : class => GetApiResponseInternal(apiCall, null, ensureSuccessStatusCode, caller);
 
     /// <summary>
     /// Makes an HTTP request using the supplied <paramref name="apiCall"/>, awaiting the response.
@@ -44,8 +44,8 @@ public abstract class ClientServiceBase
     /// <param name="ensureSuccessStatusCode">When enabled, throws an <see cref="ApiException"/> if the response status code does not indicate success (default true)</param>
     /// <param name="caller">The name of the calling method, for logging purposes (auto-filled)</param>
     /// <typeparam name="T">The type of object to return within the List</typeparam>
-    protected Task<List<T>> MakeRequestAsync<T>(Task<ApiResponse<List<T>?>> apiCall, bool ensureSuccessStatusCode = true, [CallerMemberName]string caller = "")
-        => MakeRequestAsyncInternal(apiCall, new List<T>(), ensureSuccessStatusCode, caller)!;
+    protected Task<List<T>> GetApiResponse<T>(Task<ApiResponse<List<T>?>> apiCall, bool ensureSuccessStatusCode = true, [CallerMemberName]string caller = "")
+        => GetApiResponseInternal(apiCall, new List<T>(), ensureSuccessStatusCode, caller)!;
 
     /// <summary>
     /// Makes an HTTP request using the supplied <paramref name="apiCall"/>, awaiting the response.
@@ -56,10 +56,10 @@ public abstract class ClientServiceBase
     /// <param name="ensureSuccessStatusCode">When enabled, throws an <see cref="ApiException"/> if the response status code does not indicate success (default true)</param>
     /// <param name="caller">The name of the calling method, for logging purposes (auto-filled)</param>
     /// <typeparam name="T">The type of object to return</typeparam>
-    protected Task<T> MakeRequestAsync<T>(Task<ApiResponse<T?>> apiCall, T defaultOnError, bool ensureSuccessStatusCode = true, [CallerMemberName]string caller = "")
-        where T : class => MakeRequestAsyncInternal(apiCall, defaultOnError, ensureSuccessStatusCode, caller)!;
+    protected Task<T> GetApiResponse<T>(Task<ApiResponse<T?>> apiCall, T defaultOnError, bool ensureSuccessStatusCode = true, [CallerMemberName]string caller = "")
+        where T : class => GetApiResponseInternal(apiCall, defaultOnError, ensureSuccessStatusCode, caller)!;
 
-    private async Task<T?> MakeRequestAsyncInternal<T>(Task<ApiResponse<T?>> apiCall, T? defaultOnError, bool ensureSuccessStatusCode, string caller)
+    private async Task<T?> GetApiResponseInternal<T>(Task<ApiResponse<T?>> apiCall, T? defaultOnError, bool ensureSuccessStatusCode, string caller)
         where T : class
     {
         try
