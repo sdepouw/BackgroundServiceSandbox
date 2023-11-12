@@ -4,12 +4,12 @@ using Microsoft.Extensions.Options;
 
 namespace Core7Library;
 
-public class CatFactsClientService : ClientServiceBase, ICatFactsService
+public class CatFactsClientClientService : ClientServiceBase, ICatFactsClientService
 {
     private readonly CatFactsClientSettings _settings;
     private readonly ICatFactsClient _catFactsClient;
 
-    public CatFactsClientService(IOptions<CatFactsClientSettings> settings, ILogger<CatFactsClientService> logger, ICatFactsClient catFactsClient)
+    public CatFactsClientClientService(IOptions<CatFactsClientSettings> settings, ILogger<CatFactsClientClientService> logger, ICatFactsClient catFactsClient)
         : base (logger)
     {
         _settings = settings.Value;

@@ -1,6 +1,6 @@
 ﻿namespace Core7Library.CatFacts;
 
-public interface ICatFactsService
+public interface ICatFactsClientService
 {
     Task<List<CatFact>> GetTheFactsAsync(CancellationToken cancellationToken);
     /// <summary>

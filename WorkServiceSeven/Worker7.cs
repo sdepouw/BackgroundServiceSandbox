@@ -7,12 +7,12 @@ public class Worker7 : BackgroundService
 {
     private readonly ILogger<Worker7> _logger;
     private readonly MySettings _settings;
-    private readonly ICatFactsService _service;
+    private readonly ICatFactsClientService _clientService;
 
-    public Worker7(ILogger<Worker7> logger, IOptions<MySettings> settings, ICatFactsService service)
+    public Worker7(ILogger<Worker7> logger, IOptions<MySettings> settings, ICatFactsClientService clientService)
     {
         _logger = logger;
-        _service = service;
+        _clientService = clientService;
         _settings = settings.Value;
     }
 
@@ -36,7 +36,7 @@ public class Worker7 : BackgroundService
             List<Task> tasks = new()
             {
                 // _service.GetTheFactsAsync(stoppingToken),
-                _service.GetTheFactsAsync(stoppingToken),
+                _clientService.GetTheFactsAsync(stoppingToken),
                 // _service.Hmmm(stoppingToken)
             };
             try

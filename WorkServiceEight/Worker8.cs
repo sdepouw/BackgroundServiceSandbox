@@ -3,12 +3,12 @@ using Core7Library.CatFacts;
 
 namespace WorkServiceEight;
 
-public class Worker8(ILogger<Worker8> logger, ICatFactsService catFactsService) : BackgroundService
+public class Worker8(ILogger<Worker8> logger, ICatFactsClientService catFactsClientService) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         logger.LogInformation("Start! Current Environment: {CurrentEnvironmentName}", CurrentEnvironment.Name);
-        SomeProc proc1 = new("1", catFactsService);
+        SomeProc proc1 = new("1", catFactsClientService);
         // SomeProc proc2 = new("2", catFactsClient);
         // SomeProc proc3 = new("3", catFactsClient);
 

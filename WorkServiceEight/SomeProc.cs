@@ -3,7 +3,7 @@ using Refit;
 
 namespace WorkServiceEight;
 
-public class SomeProc(string name, ICatFactsService catFactsService)
+public class SomeProc(string name, ICatFactsClientService catFactsClientService)
 {
     public bool DontStopMeNow { get; private set; }
     private string Name { get; set; } = name;
@@ -20,7 +20,7 @@ public class SomeProc(string name, ICatFactsService catFactsService)
 
         // ApiResponse<List<CatFact>?> theFacts = await catFactsClient.GetTheFactsAsync("facts", CancellationToken.None);
         // Console.WriteLine("{0} Done! Found {1} Cat Facts!", Name, theFacts.Content?.Count ?? 0);
-        await catFactsService.Explode(cancellationToken);
+        await catFactsClientService.Explode(cancellationToken);
         DontStopMeNow = false;
     }
 

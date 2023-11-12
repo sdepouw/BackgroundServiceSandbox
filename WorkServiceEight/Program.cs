@@ -13,7 +13,7 @@ builder.AddSettings<CatFactsClientSettings>();
 builder.Services.AddSerilog(config => config.ReadFrom.Configuration(builder.Configuration));
 builder.Services.AddTransient<IBearerTokenFactory, BearerTokenFactory>();
 builder.Services.AddTransient<IOAuthClient, FakeOAuthClient>();
-builder.Services.AddTransient<ICatFactsService, CatFactsClientService>();
+builder.Services.AddTransient<ICatFactsClientService, CatFactsClientClientService>();
 IServiceProvider providerWithClient = builder.Services.BuildServiceProvider();
 var refitSettings = new RefitSettings
 {

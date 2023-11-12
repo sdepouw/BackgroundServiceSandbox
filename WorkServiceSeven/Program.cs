@@ -14,7 +14,7 @@ IHostBuilder builder = Host.CreateDefaultBuilder(args)
         services.AddSerilog(config => config.ReadFrom.Configuration(hostBuilderContext.Configuration));
         services.AddTransient<IBearerTokenFactory, BearerTokenFactory>();
         services.AddTransient<IOAuthClient, FakeOAuthClient>();
-        services.AddTransient<ICatFactsService, CatFactsClientService>();
+        services.AddTransient<ICatFactsClientService, CatFactsClientClientService>();
         // services.AddRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("https://example.com/"));
 
         var clientSettings = hostBuilderContext.GetRequiredSettings<CatFactsClientSettings>();
