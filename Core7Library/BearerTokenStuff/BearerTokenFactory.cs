@@ -14,8 +14,8 @@ public class BearerTokenFactory : ClientServiceBase, IBearerTokenFactory
 
     public async Task<string> GetBearerTokenAsync(CancellationToken cancellationToken)
     {
-        AuthToken? response = await MakeRequestAsync(_client.GetBearerTokenAsync(cancellationToken), new AuthToken());
+        AuthToken response = await MakeRequestAsync(_client.GetBearerTokenAsync(cancellationToken), new AuthToken());
         // Any caching or other logic regarding the full token would be implemented here.
-        return response?.Token ?? string.Empty;
+        return response.Token;
     }
 }

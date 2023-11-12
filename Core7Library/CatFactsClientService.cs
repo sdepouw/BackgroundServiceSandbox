@@ -28,7 +28,7 @@ public class CatFactsClientService : ClientServiceBase, ICatFactsClientService
         // Func<Task<ApiResponse<string?>>> taskWithSimpleReturn = () => Task.FromResult(new ApiResponse<string?>(null!, "foo", new()));
         // MakeRequestAsync(taskWithSimpleReturn);
 
-        return MakeRequestForListAsync(_catFactsClient.GetTheFactsAsync(_settings.GetTheFactsRoute, cancellationToken));
+        return MakeRequestAsync(_catFactsClient.GetTheFactsAsync(_settings.GetTheFactsRoute, cancellationToken));
     }
 
     public Task<CatFact?> Explode(CancellationToken cancellationToken)

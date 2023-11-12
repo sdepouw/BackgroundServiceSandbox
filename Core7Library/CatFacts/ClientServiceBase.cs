@@ -26,30 +26,40 @@ public abstract class ClientServiceBase
     }
 
     /// <summary>
-    /// Makes an HTTP request using the supplied <paramref name="apiCall"/>, awaiting for the response.
+    /// Makes an HTTP request using the supplied <paramref name="apiCall"/>, awaiting the response.
+    /// If an <see cref="ApiException"/> is thrown, null is returned
+    /// </summary>
+    /// <param name="apiCall">The API call to make</param>
+    /// <param name="ensureSuccessStatusCode">When enabled, throws an <see cref="ApiException"/> if the response status code does not indicate success (default true)</param>
+    /// <param name="caller">The name of the calling method, for logging purposes (auto-filled)</param>
+    /// <typeparam name="T">The type of object to return</typeparam>
+    protected Task<T?> MakeRequestAsync<T>(Task<ApiResponse<T?>> apiCall, bool ensureSuccessStatusCode = true, [CallerMemberName] string caller = "")
+        where T : class => MakeRequestAsyncInternal(apiCall, null, ensureSuccessStatusCode, caller);
+
+    /// <summary>
+    /// Makes an HTTP request using the supplied <paramref name="apiCall"/>, awaiting the response.
     /// If an <see cref="ApiException"/> is thrown, an empty <see cref="List{T}"/> is returned
     /// </summary>
     /// <param name="apiCall">The API call to make</param>
     /// <param name="ensureSuccessStatusCode">When enabled, throws an <see cref="ApiException"/> if the response status code does not indicate success (default true)</param>
     /// <param name="caller">The name of the calling method, for logging purposes (auto-filled)</param>
-    /// <typeparam name="T">The type of object to return.</typeparam>
-    protected Task<List<T>> MakeRequestForListAsync<T>(Task<ApiResponse<List<T>?>> apiCall, bool ensureSuccessStatusCode = true, [CallerMemberName]string caller = "")
-        => MakeRequestAsync(apiCall, new List<T>(), ensureSuccessStatusCode, caller)!;
+    /// <typeparam name="T">The type of object to return within the List</typeparam>
+    protected Task<List<T>> MakeRequestAsync<T>(Task<ApiResponse<List<T>?>> apiCall, bool ensureSuccessStatusCode = true, [CallerMemberName]string caller = "")
+        => MakeRequestAsyncInternal(apiCall, new List<T>(), ensureSuccessStatusCode, caller)!;
 
     /// <summary>
-    /// Makes an HTTP request using the supplied <paramref name="apiCall"/>, awaiting for the response.
-    /// If an <see cref="ApiException"/> is thrown, <paramref name="defaultIfError"/>
-    /// (null by default) is returned instead and the exception is logged.
+    /// Makes an HTTP request using the supplied <paramref name="apiCall"/>, awaiting the response.
+    /// If an <see cref="ApiException"/> is thrown, <paramref name="defaultOnError"/> is returned
     /// </summary>
     /// <param name="apiCall">The API call to make</param>
-    /// <param name="defaultIfError">The value to return if an error occurs (default null)</param>
+    /// <param name="defaultOnError">The value to return if an error occurs</param>
     /// <param name="ensureSuccessStatusCode">When enabled, throws an <see cref="ApiException"/> if the response status code does not indicate success (default true)</param>
     /// <param name="caller">The name of the calling method, for logging purposes (auto-filled)</param>
-    /// <typeparam name="T">The type of object to return.</typeparam>
-    protected async Task<T?> MakeRequestAsync<T>(Task<ApiResponse<T?>> apiCall,
-        T? defaultIfError = null,
-        bool ensureSuccessStatusCode = true,
-        [CallerMemberName]string caller = "")
+    /// <typeparam name="T">The type of object to return</typeparam>
+    protected Task<T> MakeRequestAsync<T>(Task<ApiResponse<T?>> apiCall, T defaultOnError, bool ensureSuccessStatusCode = true, [CallerMemberName]string caller = "")
+        where T : class => MakeRequestAsyncInternal(apiCall, defaultOnError, ensureSuccessStatusCode, caller)!;
+
+    private async Task<T?> MakeRequestAsyncInternal<T>(Task<ApiResponse<T?>> apiCall, T? defaultOnError, bool ensureSuccessStatusCode, string caller)
         where T : class
     {
         try
@@ -66,7 +76,7 @@ public abstract class ClientServiceBase
             string content = ex.Content.TryFormatJson() ?? "N/A";
             Logger.LogError(ex, "[{ClientServiceName}.{RequestMethodName}] HTTP request failed: {ReasonPhrase} | Content: {Content}",
                 GetType().Name, caller, reasonPhrase, content);
-            return defaultIfError;
+            return defaultOnError;
         }
     }
 }
