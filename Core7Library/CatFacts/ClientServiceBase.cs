@@ -6,7 +6,7 @@ using Refit;
 namespace Core7Library.CatFacts;
 
 /// <summary>
-/// Class to inherit for any client service class that wraps access to Refit client interfaces.
+/// Class to inherit for any class that accesses Refit client interfaces.
 /// Provides means for making calls to Refit clients and handling exceptions, non-successful
 /// status codes, etc. Assumes requests are wrapped in <see cref="ApiResponse{T}"/>.
 /// </summary>

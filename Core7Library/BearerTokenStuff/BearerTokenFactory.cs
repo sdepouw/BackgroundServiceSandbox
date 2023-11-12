@@ -1,42 +1,21 @@
-﻿namespace Core7Library.BearerTokenStuff;
+﻿using Core7Library.CatFacts;
+using Microsoft.Extensions.Logging;
 
-public class BearerTokenFactory : IBearerTokenFactory
+namespace Core7Library.BearerTokenStuff;
+
+public class BearerTokenFactory : ClientServiceBase, IBearerTokenFactory
 {
-    private static string _cachedToken = "";
-    private static DateTime _cacheExpiration;
-    private static readonly SemaphoreSlim Semaphore = new(1);
+    private readonly IOAuthClient _client;
 
-    private readonly IOAuthClientService _oAuthClientService;
-    private bool CachedTokenIsExpired()
+    public BearerTokenFactory(ILogger<BearerTokenFactory> logger, IOAuthClient client) : base(logger)
     {
-        var isExpired = string.IsNullOrWhiteSpace(_cachedToken) || DateTime.UtcNow > _cacheExpiration;
-        return isExpired;
+        _client = client;
     }
 
-    public BearerTokenFactory(IOAuthClientService oAuthClientService)
-    {
-        _oAuthClientService = oAuthClientService;
-    }
-
-    // Probably shouldn't cache? From what I'm reading seems that one shouldn't.
-    // May just keep the second client that gets the bearer token and loads it up.
     public async Task<string> GetBearerTokenAsync(CancellationToken cancellationToken)
     {
-        if (!CachedTokenIsExpired()) return _cachedToken;
-
-        await Semaphore.WaitAsync(cancellationToken);
-        try
-        {
-            // Check again if it was set while waiting.
-            if (!CachedTokenIsExpired()) return _cachedToken;
-            var response = await _oAuthClientService.GetBearerTokenAsync(cancellationToken);
-            _cachedToken = response.Token;
-            _cacheExpiration = DateTime.UtcNow.AddSeconds(response.SecondsUntilExpiration);
-        }
-        finally
-        {
-            Semaphore.Release();
-        }
-        return _cachedToken;
+        AuthToken? response = await MakeRequestAsync(() => _client.GetBearerTokenAsync(cancellationToken), new AuthToken());
+        // Any caching or other logic regarding the full token would be implemented here.
+        return response?.Token ?? string.Empty;
     }
 }

@@ -12,7 +12,6 @@ builder.Services.AddHostedService<Worker8>();
 builder.Services.AddSerilog(config => config.ReadFrom.Configuration(builder.Configuration));
 
 builder.Services.AddTransient<IBearerTokenFactory, BearerTokenFactory>();
-builder.Services.AddTransient<IOAuthClientService, OAuthClientService>();
 builder.Services.AddTransient<ICatFactsClientService, CatFactsClientService>();
 
 var catFactsSettings = builder.GetRequiredSettings<CatFactsClientSettings>();
