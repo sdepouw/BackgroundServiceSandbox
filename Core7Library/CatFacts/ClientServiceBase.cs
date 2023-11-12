@@ -56,16 +56,18 @@ public abstract class ClientServiceBase
     {
         try
         {
+            Logger.LogDebug("[{ClientServiceName}.{RequestMethodName}] HTTP request started", GetType().Name, caller);
             ApiResponse<T?> response = await apiCall();
             if (ensureSuccessStatusCode) await response.EnsureSuccessStatusCodeAsync();
+            Logger.LogDebug("[{ClientServiceName}.{RequestMethodName}] HTTP request completed", GetType().Name, caller);
             return response.Content;
         }
         catch (ApiException ex)
         {
             string reasonPhrase = ex.ReasonPhrase ?? "N/A";
             string content = ex.Content ?? "N/A";
-            Logger.LogError(ex, "HTTP request {RequestMethodName} failed. Reason: {ReasonPhrase} | Content: {Content}",
-                caller, reasonPhrase, content);
+            Logger.LogError(ex, "[{ClientServiceName}.{RequestMethodName}] HTTP request failed: {ReasonPhrase} | Content: {Content}",
+                GetType().Name, caller, reasonPhrase, content);
             return defaultIfError;
         }
     }

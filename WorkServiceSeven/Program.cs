@@ -6,6 +6,7 @@ using Refit;
 using WorkServiceSeven;
 
 IHostBuilder builder = Host.CreateDefaultBuilder(args)
+    .ConfigureLogging(cfg =>cfg.SetMinimumLevel(LogLevel.Debug))
     .AddSettings<MySettings>()
     .AddSettings<CatFactsClientSettings>()
     .ConfigureServices((hostBuilderContext, services) =>
