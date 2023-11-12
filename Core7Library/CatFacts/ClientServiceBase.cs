@@ -26,30 +26,27 @@ public abstract class ClientServiceBase
     }
 
     /// <summary>
-    /// Makes an HTTP request using the supplied <paramref name="apiCall"/>.
-    /// If an <see cref="ApiException"/> is thrown, an empty list <see cref="List{T}"/>
-    /// is returned instead and the exception is logged.
+    /// Makes an HTTP request using the supplied <paramref name="apiCall"/>, awaiting for the response.
+    /// If an <see cref="ApiException"/> is thrown, an empty <see cref="List{T}"/> is returned
     /// </summary>
-    /// <param name="apiCall">The API call to make. Usually "() => _client.MyCall()", where "MyCall()" returns
-    /// an instance of <see cref="ApiResponse{T}"/></param>
-    /// <param name="ensureSuccessStatusCode">Default true. When enabled, throws an <see cref="ApiException"/> if the response status code does not indicate success.</param>
-    /// <param name="caller">The name of the calling method, for logging purposes. Auto-filled.</param>
+    /// <param name="apiCall">The API call to make</param>
+    /// <param name="ensureSuccessStatusCode">When enabled, throws an <see cref="ApiException"/> if the response status code does not indicate success (default true)</param>
+    /// <param name="caller">The name of the calling method, for logging purposes (auto-filled)</param>
     /// <typeparam name="T">The type of object to return.</typeparam>
-    protected Task<List<T>> MakeRequestListAsync<T>(Func<Task<ApiResponse<List<T>?>>> apiCall, bool ensureSuccessStatusCode = true, [CallerMemberName]string caller = "")
+    protected Task<List<T>> MakeRequestForListAsync<T>(Task<ApiResponse<List<T>?>> apiCall, bool ensureSuccessStatusCode = true, [CallerMemberName]string caller = "")
         => MakeRequestAsync(apiCall, new List<T>(), ensureSuccessStatusCode, caller)!;
 
     /// <summary>
-    /// Makes an HTTP request using the supplied <paramref name="apiCall"/>, awaiting for the result.
+    /// Makes an HTTP request using the supplied <paramref name="apiCall"/>, awaiting for the response.
     /// If an <see cref="ApiException"/> is thrown, <paramref name="defaultIfError"/>
-    /// (null if not set) is returned instead and the exception is logged.
+    /// (null by default) is returned instead and the exception is logged.
     /// </summary>
-    /// <param name="apiCall">The API call to make. Usually "() => _client.MyCall()", where "MyCall()" returns
-    /// an instance of <see cref="ApiResponse{T}"/></param>
-    /// <param name="defaultIfError">The value to return if an error occurs. Default to null.</param>
-    /// <param name="ensureSuccessStatusCode">Default true. When enabled, throws an <see cref="ApiException"/> if the response status code does not indicate success.</param>
-    /// <param name="caller">The name of the calling method, for logging purposes. Auto-filled.</param>
+    /// <param name="apiCall">The API call to make</param>
+    /// <param name="defaultIfError">The value to return if an error occurs (default null)</param>
+    /// <param name="ensureSuccessStatusCode">When enabled, throws an <see cref="ApiException"/> if the response status code does not indicate success (default true)</param>
+    /// <param name="caller">The name of the calling method, for logging purposes (auto-filled)</param>
     /// <typeparam name="T">The type of object to return.</typeparam>
-    protected async Task<T?> MakeRequestAsync<T>(Func<Task<ApiResponse<T?>>> apiCall,
+    protected async Task<T?> MakeRequestAsync<T>(Task<ApiResponse<T?>> apiCall,
         T? defaultIfError = null,
         bool ensureSuccessStatusCode = true,
         [CallerMemberName]string caller = "")
@@ -58,7 +55,7 @@ public abstract class ClientServiceBase
         try
         {
             Logger.LogDebug("[{ClientServiceName}.{RequestMethodName}] HTTP request started", GetType().Name, caller);
-            ApiResponse<T?> response = await apiCall();
+            ApiResponse<T?> response = await apiCall;
             if (ensureSuccessStatusCode) await response.EnsureSuccessStatusCodeAsync();
             Logger.LogDebug("[{ClientServiceName}.{RequestMethodName}] HTTP request completed", GetType().Name, caller);
             return response.Content;
