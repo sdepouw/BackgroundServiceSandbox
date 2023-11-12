@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Text.Json;
 using Core7Library.Extensions;
 using Microsoft.Extensions.Logging;
 using Refit;
@@ -67,8 +68,15 @@ public abstract class ClientServiceBase
             Logger.LogDebug("[{ClientServiceName}.{RequestMethodName}] HTTP request started", GetType().Name, caller);
             ApiResponse<T?> response = await apiCall;
             if (ensureSuccessStatusCode) await response.EnsureSuccessStatusCodeAsync();
+            if (response.Error?.InnerException is JsonException) throw response.Error;
             Logger.LogDebug("[{ClientServiceName}.{RequestMethodName}] HTTP request completed", GetType().Name, caller);
             return response.Content;
+        }
+        catch (ApiException ex) when (ex.InnerException is JsonException)
+        {
+            Logger.LogError(ex, "[{ClientServiceName}.{RequestMethodName}] HTTP request succeeded, but a JsonException was thrown on deserialization",
+                GetType().Name, caller);
+            return defaultOnError;
         }
         catch (ApiException ex)
         {

@@ -1,47 +1,28 @@
 using Core7Library.CatFacts;
-using Microsoft.Extensions.Options;
 
 namespace WorkServiceSeven;
 
 public class Worker7 : BackgroundService
 {
     private readonly ILogger<Worker7> _logger;
-    private readonly MySettings _settings;
     private readonly ICatFactsClientService _clientService;
 
-    public Worker7(ILogger<Worker7> logger, IOptions<MySettings> settings, ICatFactsClientService clientService)
+    public Worker7(ILogger<Worker7> logger, ICatFactsClientService clientService)
     {
         _logger = logger;
         _clientService = clientService;
-        _settings = settings.Value;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await Task.Delay(500, stoppingToken); // So default log messages have time to write.
-        // List<Task> tasks = new();
-        // for (int i = 0; i < 10; i++)
-        // {
-        //     tasks.Add(DoSomethingAsync(stoppingToken, i));
-        // }
-        //
-        // await Task.WhenAll(tasks);
-        // _logger.LogInformation("done!");
 
-        //_logger.LogInformation("Start! Current Environment: {CurrentEnvironmentName}", CurrentEnvironment.Name);
         while (!stoppingToken.IsCancellationRequested)
         {
-            // List<CatFact> theFacts = await _service.GetTheFactsAsync(stoppingToken);
-            // _logger.LogInformation("Found {0} Cat Facts!", theFacts.Count);
-            List<Task> tasks = new()
-            {
-                // _service.GetTheFactsAsync(stoppingToken),
-                //_clientService.GetTheFactsAsync(stoppingToken),
-                _clientService.Explode(stoppingToken)
-            };
             try
             {
-                await Task.WhenAll(tasks);
+                List<CatFact> res = await _clientService.GetTheFactsAsync(stoppingToken);
+                _logger.LogInformation("Got {Facts} facts!", res.Count);
             }
             catch (Exception e)
             {
@@ -51,27 +32,6 @@ public class Worker7 : BackgroundService
             await Task.Delay(1000 * 60 * 10, stoppingToken);
         }
     }
-
-    private  Task DoSomethingAsync(CancellationToken token, int index)
-    {
-        // try
-        // {
-            if (index == 3)
-            {
-                throw new Exception("OH NO");
-            }
-
-            var ex = Task.Delay(3000, token).Exception;
-            _logger.LogInformation("{i} Won!", index);
-            return Task.CompletedTask;
-            // }
-            // catch (Exception e)
-            // {
-            //     _logger.LogError(e, "Something's wrong! {i}", index);
-            //     throw;
-            // }
-    }
-
 
     public override Task StopAsync(CancellationToken cancellationToken)
     {
