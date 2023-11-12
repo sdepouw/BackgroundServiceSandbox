@@ -2,7 +2,6 @@ using Core7Library;
 using Core7Library.BearerTokenStuff;
 using Core7Library.CatFacts;
 using Core7Library.Extensions;
-using Refit;
 using Serilog;
 using WorkServiceEight;
 
@@ -17,8 +16,9 @@ builder.Services.AddTransient<IOAuthClientService, OAuthClientService>();
 builder.Services.AddTransient<ICatFactsClientService, CatFactsClientService>();
 
 var catFactsSettings = builder.GetRequiredSettings<CatFactsClientSettings>();
-builder.Services.AddRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("https://example.com/"), enableRequestResponseLogging: true);
+builder.Services.AddRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("https://example.com/"));
 builder.Services.AddRefitClient<ICatFactsClient>(c => c.BaseAddress = new Uri(catFactsSettings.Host), useAuthHeaderGetter: true, enableRequestResponseLogging: true);
 
 IHost host = builder.Build();
+ServiceCollectionExtensions.Provider = host.Services;
 host.Run();

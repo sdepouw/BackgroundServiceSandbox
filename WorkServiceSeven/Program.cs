@@ -18,9 +18,10 @@ IHostBuilder builder = Host.CreateDefaultBuilder(args)
         services.AddTransient<ICatFactsClientService, CatFactsClientService>();
 
         var catFactsSettings = hostBuilderContext.GetRequiredSettings<CatFactsClientSettings>();
-        services.AddRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("https://example.com/"), enableRequestResponseLogging: true);
+        services.AddRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("https://example.com/"));
         services.AddRefitClient<ICatFactsClient>(c => c.BaseAddress = new Uri(catFactsSettings.Host), useAuthHeaderGetter: true, enableRequestResponseLogging: true);
     });
 
 IHost host = builder.Build();
+ServiceCollectionExtensions.Provider = host.Services;
 host.Run();

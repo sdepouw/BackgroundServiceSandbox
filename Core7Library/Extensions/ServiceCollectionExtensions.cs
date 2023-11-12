@@ -70,11 +70,12 @@ public static class ServiceCollectionExtensions
     /// <returns>A Func to assign to <see cref="RefitSettings.AuthorizationHeaderValueGetter"/></returns>
     public static Func<HttpRequestMessage, CancellationToken, Task<string>> GetFromBearerTokenFactory(this IServiceCollection services)
     {
-        IServiceProvider providerWithClient = services.BuildServiceProvider();
         return (_, cancellationToken) =>
         {
-            var factory = providerWithClient.GetRequiredService<IBearerTokenFactory>();
+            var factory = Provider.GetRequiredService<IBearerTokenFactory>();
             return factory.GetBearerTokenAsync(cancellationToken);
         };
     }
+
+    public static IServiceProvider Provider { get; set; } = null!;
 }
