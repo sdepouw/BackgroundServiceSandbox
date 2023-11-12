@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Core7Library.Extensions;
 using Microsoft.Extensions.Logging;
 using Refit;
 
@@ -65,7 +66,7 @@ public abstract class ClientServiceBase
         catch (ApiException ex)
         {
             string reasonPhrase = ex.ReasonPhrase ?? "N/A";
-            string content = ex.Content ?? "N/A";
+            string content = ex.Content.TryFormatJson() ?? "N/A";
             Logger.LogError(ex, "[{ClientServiceName}.{RequestMethodName}] HTTP request failed: {ReasonPhrase} | Content: {Content}",
                 GetType().Name, caller, reasonPhrase, content);
             return defaultIfError;
