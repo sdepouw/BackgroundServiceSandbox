@@ -23,5 +23,5 @@ IHostBuilder builder = Host.CreateDefaultBuilder(args)
     });
 
 IHost host = builder.Build();
-ServiceCollectionExtensions.Provider = host.Services;
+HostInstance.SetHost(host);
 host.Run();

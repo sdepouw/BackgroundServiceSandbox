@@ -43,7 +43,7 @@ public static class ServiceCollectionExtensions
         where TClientInterface : class
     {
         RefitSettings? refitSettings = useAuthHeaderGetter
-            ? new RefitSettings { AuthorizationHeaderValueGetter = services.GetFromBearerTokenFactory() }
+            ? new RefitSettings { AuthorizationHeaderValueGetter = GetFromBearerTokenFactory() }
             : null;
         var builder = services.AddRefitClient<TClientInterface>(refitSettings);
         if (disableAutoRedirect) builder = builder.DisableAutoRedirect();
@@ -53,31 +53,19 @@ public static class ServiceCollectionExtensions
         if (enableRequestResponseLogging)
         {
             // Cannot use builder.AddHttpMessageHandler<HttpLoggingHandler>, because Refit and DI mingling throws an exception.
+            // See https://github.com/reactiveui/refit/issues/1403#issuecomment-1499380557 for workaround source
             builder.AddHttpMessageHandler(svc => new HttpLoggingHandler(svc.GetRequiredService<ILogger<HttpLoggingHandler>>()));
             services.AddSingleton<HttpLoggingHandler>(); // Calling this multiple times seems to be fine.
         }
         return builder;
     }
 
-    /// <summary>
-    /// Provides an instance to pass to <see cref="RefitSettings.AuthorizationHeaderValueGetter"/>, that uses
-    /// <see cref="IBearerTokenFactory.GetBearerTokenAsync"/> to fetch a bearer token.
-    /// NOTE: Any dependencies your implementation of <see cref="IBearerTokenFactory"/> has must be registered in
-    /// the provided <see cref="IServiceCollection"/>!
-    /// </summary>
-    /// <param name="services">
-    /// The service collection to create an instance of <see cref="IBearerTokenFactory"/> from.
-    /// Make sure it's added to the <see cref="IServiceCollection"/>!
-    /// </param>
-    /// <returns>A Func to assign to <see cref="RefitSettings.AuthorizationHeaderValueGetter"/></returns>
-    public static Func<HttpRequestMessage, CancellationToken, Task<string>> GetFromBearerTokenFactory(this IServiceCollection services)
+    private static Func<HttpRequestMessage, CancellationToken, Task<string>> GetFromBearerTokenFactory()
     {
         return (_, cancellationToken) =>
         {
-            var factory = Provider.GetRequiredService<IBearerTokenFactory>();
+            var factory = HostInstance.GetServiceProvider().GetRequiredService<IBearerTokenFactory>();
             return factory.GetBearerTokenAsync(cancellationToken);
         };
     }
-
-    public static IServiceProvider Provider { get; set; } = null!;
 }

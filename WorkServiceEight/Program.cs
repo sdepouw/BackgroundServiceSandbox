@@ -20,5 +20,5 @@ builder.Services.AddRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("http
 builder.Services.AddRefitClient<ICatFactsClient>(c => c.BaseAddress = new Uri(catFactsSettings.Host), useAuthHeaderGetter: true, enableRequestResponseLogging: true);
 
 IHost host = builder.Build();
-ServiceCollectionExtensions.Provider = host.Services;
+HostInstance.SetHost(host);
 host.Run();
