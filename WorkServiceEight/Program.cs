@@ -7,24 +7,18 @@ using Serilog;
 using WorkServiceEight;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
-builder.Services.AddHostedService<Worker8>();
 builder.AddSettings<MySettings>();
 builder.AddSettings<CatFactsClientSettings>();
+builder.Services.AddHostedService<Worker8>();
 builder.Services.AddSerilog(config => config.ReadFrom.Configuration(builder.Configuration));
+
 builder.Services.AddTransient<IBearerTokenFactory, BearerTokenFactory>();
-builder.Services.AddTransient<IOAuthClient, FakeOAuthClient>();
-builder.Services.AddTransient<ICatFactsClientService, CatFactsClientClientService>();
-IServiceProvider providerWithClient = builder.Services.BuildServiceProvider();
-var refitSettings = new RefitSettings
-{
-    AuthorizationHeaderValueGetter = (_, cancellationToken) =>
-    {
-        var client = providerWithClient.GetRequiredService<IBearerTokenFactory>();
-        return client.GetBearerTokenAsync(cancellationToken);
-    }
-};
-var clientSettings = builder.GetRequiredSettings<CatFactsClientSettings>();
-builder.Services.AddRefitClient<ICatFactsClient>(c => c.BaseAddress = new Uri(clientSettings.Host), refitSettings, true);
+builder.Services.AddTransient<IOAuthClientService, OAuthClientService>();
+builder.Services.AddTransient<ICatFactsClientService, CatFactsClientService>();
+
+var catFactsSettings = builder.GetRequiredSettings<CatFactsClientSettings>();
+builder.Services.AddRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("https://example.com/"), enableRequestResponseLogging: true);
+builder.Services.AddRefitClient<ICatFactsClient>(c => c.BaseAddress = new Uri(catFactsSettings.Host), useAuthHeaderGetter: true, enableRequestResponseLogging: true);
 
 IHost host = builder.Build();
 host.Run();

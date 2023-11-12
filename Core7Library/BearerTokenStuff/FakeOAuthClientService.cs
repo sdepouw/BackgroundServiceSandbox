@@ -1,6 +1,6 @@
 ﻿namespace Core7Library.BearerTokenStuff;
 
-public class FakeOAuthClient : IOAuthClient
+public class FakeOAuthClientService : IOAuthClientService
 {
     public Task<AuthToken> GetBearerTokenAsync(CancellationToken cancellationToken)
     {

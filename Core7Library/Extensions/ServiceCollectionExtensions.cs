@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Core7Library.BearerTokenStuff;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Refit;
 
@@ -23,7 +24,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The service collection being built</param>
     /// <param name="configureHttpClient">Action to take when configuring the <see cref="HttpClient"/></param>
-    /// <param name="refitSettings">Settings for Refit.</param>
+    /// <param name="useAuthHeaderGetter">When true, will configure Refit to attempt to fetch a bearer token from <see cref="IBearerTokenFactory"/></param>
     /// <param name="enableRequestResponseLogging">When true, will log every single HTTP request and response using <see cref="HttpLoggingHandler"/></param>
     /// <param name="disableAutoRedirect">
     /// When true, will attempt to disable the ability for this client to do redirects when making HTTP calls.
@@ -36,11 +37,14 @@ public static class ServiceCollectionExtensions
     /// <typeparam name="TClientInterface">A Refit client interface.</typeparam>
     /// <returns>The builder used to build this client, to allow for further customization if needed.</returns>
     public static IHttpClientBuilder AddRefitClient<TClientInterface>(this IServiceCollection services,
-        Action<HttpClient> configureHttpClient, RefitSettings? refitSettings = null, bool enableRequestResponseLogging = false,
+        Action<HttpClient> configureHttpClient, bool useAuthHeaderGetter = false, bool enableRequestResponseLogging = false,
         bool disableAutoRedirect = false, int handlerLifetimeInMinutes = 10)
         where TClientInterface : class
     {
-        var builder = services.AddRefitClient<TClientInterface>(refitSettings ?? new());
+        RefitSettings? refitSettings = useAuthHeaderGetter
+            ? new RefitSettings { AuthorizationHeaderValueGetter = services.GetFromBearerTokenFactory() }
+            : null;
+        var builder = services.AddRefitClient<TClientInterface>(refitSettings);
         if (disableAutoRedirect) builder = builder.DisableAutoRedirect();
         builder
             .ConfigureHttpClient(configureHttpClient)
@@ -51,5 +55,26 @@ public static class ServiceCollectionExtensions
             services.AddSingleton<HttpLoggingHandler>(); // Calling this multiple times seems to be fine.
         }
         return builder;
+    }
+
+    /// <summary>
+    /// Provides an instance to pass to <see cref="RefitSettings.AuthorizationHeaderValueGetter"/>, that uses
+    /// <see cref="IBearerTokenFactory.GetBearerTokenAsync"/> to fetch a bearer token.
+    /// NOTE: Any dependencies your implementation of <see cref="IBearerTokenFactory"/> has must be registered in
+    /// the provided <see cref="IServiceCollection"/>!
+    /// </summary>
+    /// <param name="services">
+    /// The service collection to create an instance of <see cref="IBearerTokenFactory"/> from.
+    /// Make sure it's added to the <see cref="IServiceCollection"/>!
+    /// </param>
+    /// <returns>A Func to assign to <see cref="RefitSettings.AuthorizationHeaderValueGetter"/></returns>
+    public static Func<HttpRequestMessage, CancellationToken, Task<string>> GetFromBearerTokenFactory(this IServiceCollection services)
+    {
+        IServiceProvider providerWithClient = services.BuildServiceProvider();
+        return (_, cancellationToken) =>
+        {
+            var factory = providerWithClient.GetRequiredService<IBearerTokenFactory>();
+            return factory.GetBearerTokenAsync(cancellationToken);
+        };
     }
 }
