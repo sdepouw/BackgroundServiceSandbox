@@ -4,6 +4,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Core7Library;
 
+/// <summary>
+/// Logs and times HTTP requests/responses, including all content (as <see cref="LogLevel.Debug"/>);
+/// each HTTP request is logged alongside a unique ID for easier matching/filtering
+/// </summary>
+/// <remarks>
+/// CAUTION: Services with heavy HTTP traffic that log <see cref="LogLevel.Debug" />-level messages can potentially
+/// log a lot of information!
+/// </remarks>
 public class HttpLoggingHandler : DelegatingHandler
 {
     private static readonly Stopwatch Stopwatch = new();
@@ -21,7 +29,7 @@ public class HttpLoggingHandler : DelegatingHandler
         if (request.ContentIsTextBased())
         {
             var requestContent = await request.Content!.ReadAsStringAsync(cancellationToken);
-            _logger.LogDebug("[{Id}] Content: {RequestContent}", id, requestContent.TryFormatJson());
+            _logger.LogDebug("[{Id}] Request Content: {RequestContent}", id, requestContent.TryFormatJson());
         }
         Stopwatch.Restart();
         var response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
