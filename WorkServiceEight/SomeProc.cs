@@ -3,12 +3,12 @@ using Refit;
 
 namespace WorkServiceEight;
 
-public class SomeProc(string name, ICatFactsClient catFactsClient)
+public class SomeProc(string name, ICatFactsService catFactsService)
 {
     public bool DontStopMeNow { get; private set; }
     private string Name { get; set; } = name;
 
-    public async Task Start()
+    public async Task Start(CancellationToken cancellationToken)
     {
         DontStopMeNow = true;
         Console.WriteLine("Starting {0}. Don't stop me now!", Name);
@@ -18,8 +18,9 @@ public class SomeProc(string name, ICatFactsClient catFactsClient)
         //     await Task.Delay(1000);
         // }
 
-        ApiResponse<List<CatFact>?> theFacts = await catFactsClient.GetTheFactsAsync("facts", CancellationToken.None);
-        Console.WriteLine("{0} Done! Found {1} Cat Facts!", Name, theFacts.Content?.Count ?? 0);
+        // ApiResponse<List<CatFact>?> theFacts = await catFactsClient.GetTheFactsAsync("facts", CancellationToken.None);
+        // Console.WriteLine("{0} Done! Found {1} Cat Facts!", Name, theFacts.Content?.Count ?? 0);
+        await catFactsService.Explode(cancellationToken);
         DontStopMeNow = false;
     }
 

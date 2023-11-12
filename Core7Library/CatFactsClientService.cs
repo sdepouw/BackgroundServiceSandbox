@@ -31,7 +31,7 @@ public class CatFactsClientService : ClientServiceBase, ICatFactsService
         return MakeRequestListAsync(() => _catFactsClient.GetTheFactsAsync(_settings.GetTheFactsRoute, cancellationToken));
     }
 
-    public Task<CatFact?> Hmmm(CancellationToken cancellationToken)
+    public Task<CatFact?> Explode(CancellationToken cancellationToken)
     {
         return MakeRequestAsync(() => _catFactsClient.GetSingleFact("Whatever", new(), cancellationToken));
     }
