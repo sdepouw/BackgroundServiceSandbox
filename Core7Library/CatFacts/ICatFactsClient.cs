@@ -23,8 +23,8 @@ public interface ICatFactsClient
     /// This is not a real route. It'll just 404.
     /// </summary>
     /// <returns>Nothing!</returns>
-    [Post("/this-is-not-real")]
-    Task<ApiResponse<CatFact?>> GetSingleFact(SomeFakeThing thing, CancellationToken cancellationToken);
+    [Post("/this-is-not-real/{theRoute}")]
+    Task<ApiResponse<CatFact?>> GetSingleFact(string theRoute, SomeFakeThing theRequest, CancellationToken cancellationToken);
 }
 
 public class SomeFakeThing
