@@ -1,5 +1,4 @@
 ﻿using Core7Library.CatFacts;
-using Refit;
 
 namespace WorkServiceEight;
 
