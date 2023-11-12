@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Headers;
+using Core7Library.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Core7Library;
@@ -38,10 +39,10 @@ public class HttpLoggingHandler : DelegatingHandler
             if (req.Content is StringContent || IsTextBasedContentType(req.Headers) ||
                 IsTextBasedContentType(req.Content.Headers))
             {
-                var result = await req.Content.ReadAsStringAsync(cancellationToken);
+                var requestContent = await req.Content.ReadAsStringAsync(cancellationToken);
 
                 _logger.LogInformation($"{msg} Content:");
-                _logger.LogInformation($"{msg} {result}");
+                _logger.LogInformation($"{msg} {requestContent.TryFormatJson()}");
             }
         }
 
@@ -70,11 +71,11 @@ public class HttpLoggingHandler : DelegatingHandler
         if (resp.Content is StringContent || IsTextBasedContentType(resp.Headers) || IsTextBasedContentType(resp.Content.Headers))
         {
             start = DateTime.Now;
-            var result = await resp.Content.ReadAsStringAsync(cancellationToken);
+            var responseContent = await resp.Content.ReadAsStringAsync(cancellationToken);
             end = DateTime.Now;
 
             _logger.LogInformation($"{msg} Content:");
-            _logger.LogInformation($"{msg} {result}");
+            _logger.LogInformation($"{msg} {responseContent.TryFormatJson()}");
             _logger.LogInformation($"{msg} Duration: {end - start}");
         }
 
