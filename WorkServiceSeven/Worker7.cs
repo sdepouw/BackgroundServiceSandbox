@@ -21,8 +21,9 @@ public class Worker7 : BackgroundService
         {
             try
             {
-                List<CatFact> res = await _clientService.GetTheFactsAsync(stoppingToken);
-                _logger.LogInformation("Got {Facts} facts!", res.Count);
+                await _clientService.Explode(stoppingToken);
+                // List<CatFact> res = await _clientService.GetTheFactsAsync(stoppingToken);
+                // _logger.LogInformation("Got {Facts} facts!", res.Count);
             }
             catch (Exception e)
             {

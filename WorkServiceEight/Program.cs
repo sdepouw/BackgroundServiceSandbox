@@ -11,7 +11,7 @@ builder.AddSettings<CatFactsClientSettings>();
 builder.Services.AddHostedService<Worker8>();
 builder.Services.AddSerilog(config => config.ReadFrom.Configuration(builder.Configuration));
 
-builder.Services.AddTransient<IBearerTokenFactory, BearerTokenFactory>();
+builder.Services.AddTransient<IOAuthClientService, OAuthClientService>();
 builder.Services.AddTransient<ICatFactsClientService, CatFactsClientService>();
 
 var mySettings = builder.GetRequiredSettings<MySettings>();
@@ -20,5 +20,6 @@ builder.Services.AddRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("http
 builder.Services.AddRefitClient<ICatFactsClient>(c => c.BaseAddress = new Uri(catFactsSettings.Host), useAuthHeaderGetter: true, enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging);
 
 IHost host = builder.Build();
-HostInstance.SetHost(host);
+Task<string> GetBearerTokenAsyncFunc(CancellationToken cancellationToken) => host.Services.GetRequiredService<IOAuthClientService>().GetBearerTokenAsync(cancellationToken);
+BearerTokenFactory.SetBearerTokenGetterFunc(GetBearerTokenAsyncFunc);
 host.Run();

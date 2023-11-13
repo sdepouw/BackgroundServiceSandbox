@@ -1,21 +1,38 @@
-﻿using Core7Library.CatFacts;
-using Microsoft.Extensions.Logging;
+﻿using Core7Library.Extensions;
+using Microsoft.Extensions.Hosting;
+using Refit;
 
 namespace Core7Library.BearerTokenStuff;
 
-public class BearerTokenFactory : ClientServiceBase, IBearerTokenFactory
+/// <summary>
+/// Static class that returns bearer tokens. Used when calling <see cref="ServiceCollectionExtensions.AddRefitClient{TClientInterface}"/>
+/// when setting <see cref="RefitSettings.AuthorizationHeaderValueGetter"/> (i.e. passing "useAuthHeaderGetter" as true).
+/// After building the <see cref="IHost"/>, call <see cref="SetBearerTokenGetterFunc" /> so this factory knows how to get
+/// the bearer token. If that doesn't happen, then <see cref="InvalidOperationException"/> will be thrown.
+/// </summary>
+public static class BearerTokenFactory
 {
-    private readonly IOAuthClient _client;
+    private static Func<CancellationToken, Task<string>>? _getBearerTokenAsyncFunc;
 
-    public BearerTokenFactory(ILogger<BearerTokenFactory> logger, IOAuthClient client) : base(logger)
+    /// <summary>
+    /// Returns bearer token string to be added to Authorization headers.
+    /// Use the returned token like so: "Authorization: Bearer {token}"
+    /// </summary>
+    /// <returns>Token string to use in Authorization Bearer header</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when <see cref="SetBearerTokenGetterFunc"/> not called prior
+    /// to calling this method
+    /// </exception>
+    public static Task<string> GetBearerTokenAsync(CancellationToken cancellationToken)
     {
-        _client = client;
+        if (_getBearerTokenAsyncFunc is null)
+        {
+            throw new InvalidOperationException(
+                $"Cannot call {nameof(BearerTokenFactory)}.{nameof(GetBearerTokenAsync)} without calling {nameof(BearerTokenFactory)}.{nameof(SetBearerTokenGetterFunc)} first!");
+        }
+        return _getBearerTokenAsyncFunc(cancellationToken);
     }
 
-    public async Task<string> GetBearerTokenAsync(CancellationToken cancellationToken)
-    {
-        AuthToken response = await GetApiResponse(_client.GetBearerTokenAsync(cancellationToken), new AuthToken());
-        // Any caching or other logic regarding the full token would be implemented here.
-        return response.Token;
-    }
+    public static void SetBearerTokenGetterFunc(Func<CancellationToken, Task<string>> getBearerTokenAsyncFunc)
+        => _getBearerTokenAsyncFunc = getBearerTokenAsyncFunc;
 }

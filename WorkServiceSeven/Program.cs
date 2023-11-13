@@ -13,7 +13,7 @@ IHostBuilder builder = Host.CreateDefaultBuilder(args)
         services.AddHostedService<Worker7>();
         services.AddSerilog(config => config.ReadFrom.Configuration(hostBuilderContext.Configuration));
 
-        services.AddTransient<IBearerTokenFactory, BearerTokenFactory>();
+        services.AddTransient<IOAuthClientService, OAuthClientService>();
         services.AddTransient<ICatFactsClientService, CatFactsClientService>();
 
         var mySettings = hostBuilderContext.GetRequiredSettings<MySettings>();
@@ -23,5 +23,6 @@ IHostBuilder builder = Host.CreateDefaultBuilder(args)
     });
 
 IHost host = builder.Build();
-HostInstance.SetHost(host);
+Task<string> GetBearerTokenAsyncFunc(CancellationToken cancellationToken) => host.Services.GetRequiredService<IOAuthClientService>().GetBearerTokenAsync(cancellationToken);
+BearerTokenFactory.SetBearerTokenGetterFunc(GetBearerTokenAsyncFunc);
 host.Run();

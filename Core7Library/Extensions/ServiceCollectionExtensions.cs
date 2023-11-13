@@ -43,8 +43,10 @@ public static class ServiceCollectionExtensions
         where TClientInterface : class
     {
         RefitSettings? refitSettings = useAuthHeaderGetter
-            ? new RefitSettings { AuthorizationHeaderValueGetter = GetFromBearerTokenFactory() }
-            : null;
+            ? new RefitSettings
+            {
+                AuthorizationHeaderValueGetter = (_, cancellationToken) => BearerTokenFactory.GetBearerTokenAsync(cancellationToken)
+            } : null;
         var builder = services.AddRefitClient<TClientInterface>(refitSettings);
         if (disableAutoRedirect) builder = builder.DisableAutoRedirect();
         builder
@@ -58,14 +60,5 @@ public static class ServiceCollectionExtensions
             services.AddSingleton<HttpLoggingHandler>(); // Calling this multiple times seems to be fine.
         }
         return builder;
-    }
-
-    private static Func<HttpRequestMessage, CancellationToken, Task<string>> GetFromBearerTokenFactory()
-    {
-        return (_, cancellationToken) =>
-        {
-            var factory = HostInstance.GetServiceProvider().GetRequiredService<IBearerTokenFactory>();
-            return factory.GetBearerTokenAsync(cancellationToken);
-        };
     }
 }
