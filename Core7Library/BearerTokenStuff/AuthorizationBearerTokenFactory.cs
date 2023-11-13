@@ -13,6 +13,7 @@ namespace Core7Library.BearerTokenStuff;
 public static class AuthorizationBearerTokenFactory
 {
     private static Func<CancellationToken, Task<string>>? _getBearerTokenAsyncFunc;
+    private static bool _enabled;
 
     /// <summary>
     /// Returns bearer token string to be added to Authorization headers.
@@ -24,6 +25,7 @@ public static class AuthorizationBearerTokenFactory
     /// </exception>
     public static Task<string> GetBearerTokenAsync(CancellationToken cancellationToken)
     {
+        if (!_enabled) throw new InvalidOperationException($"Must enable {nameof(AuthorizationBearerTokenFactory)}.{nameof(Enable)}");
         VerifyBearerTokenGetterFuncIsSet();
         return _getBearerTokenAsyncFunc!(cancellationToken);
     }
@@ -36,12 +38,20 @@ public static class AuthorizationBearerTokenFactory
     /// </exception>
     public static void VerifyBearerTokenGetterFuncIsSet()
     {
+        if (!_enabled) return;
         if (_getBearerTokenAsyncFunc is null)
         {
             throw new InvalidOperationException(
-                $"Cannot call {nameof(AuthorizationBearerTokenFactory)}.{nameof(GetBearerTokenAsync)} without calling {nameof(AuthorizationBearerTokenFactory)}.{nameof(SetBearerTokenGetterFunc)} first!");
+                $"Cannot call {nameof(AuthorizationBearerTokenFactory)}.{nameof(GetBearerTokenAsync)} without calling {nameof(AuthorizationBearerTokenFactory)}.{nameof(SetBearerTokenGetterFunc)} first");
         }
     }
+
+    /// <summary>
+    /// Enables the use of this class. Turning it on makes calling <see cref="SetBearerTokenGetterFunc"/> mandatory.
+    /// Leaving it off makes that optional, but will cause an <see cref="InvalidOperationException"/> to be thrown
+    /// from <see cref="GetBearerTokenAsync" /> if that's called without enabling.
+    /// </summary>
+    public static void Enable() => _enabled = true;
 
     public static void SetBearerTokenGetterFunc(Func<CancellationToken, Task<string>> getBearerTokenAsyncFunc)
         => _getBearerTokenAsyncFunc = getBearerTokenAsyncFunc;

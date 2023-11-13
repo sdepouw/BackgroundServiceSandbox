@@ -42,11 +42,15 @@ public static class ServiceCollectionExtensions
         bool disableAutoRedirect = false, int handlerLifetimeInMinutes = 10)
         where TClientInterface : class
     {
-        RefitSettings? refitSettings = useAuthHeaderGetter
-            ? new RefitSettings
+        RefitSettings? refitSettings = null;
+        if (useAuthHeaderGetter)
+        {
+            AuthorizationBearerTokenFactory.Enable();
+            refitSettings = new RefitSettings
             {
                 AuthorizationHeaderValueGetter = (_, cancellationToken) => AuthorizationBearerTokenFactory.GetBearerTokenAsync(cancellationToken)
-            } : null;
+            };
+        }
         var builder = services.AddRefitClient<TClientInterface>(refitSettings);
         if (disableAutoRedirect) builder = builder.DisableAutoRedirect();
         builder
