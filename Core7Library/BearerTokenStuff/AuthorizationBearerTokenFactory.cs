@@ -28,6 +28,12 @@ public static class AuthorizationBearerTokenFactory
         return _getBearerTokenAsyncFunc!(cancellationToken);
     }
 
+    /// <summary>
+    /// Checks if the delegate for fetching bearer tokens is set.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when <see cref="SetBearerTokenGetterFunc"/> not called prior to calling this method
+    /// </exception>
     public static void VerifyBearerTokenGetterFuncIsSet()
     {
         if (_getBearerTokenAsyncFunc is null)
