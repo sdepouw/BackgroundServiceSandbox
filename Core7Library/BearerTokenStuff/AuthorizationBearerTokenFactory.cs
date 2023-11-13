@@ -51,6 +51,9 @@ public static class AuthorizationBearerTokenFactory
         }
     }
 
+    /// <summary>
+    /// Provide a delegate that returns a bearer token to use for authorization
+    /// </summary>
     public static void SetBearerTokenGetterFunc(Func<CancellationToken, Task<string>> getBearerTokenAsyncFunc)
         => _getBearerTokenAsyncFunc = getBearerTokenAsyncFunc;
 }
