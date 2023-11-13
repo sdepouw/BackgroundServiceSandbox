@@ -23,12 +23,12 @@ public abstract class ClientServiceBase
     /// Constructor to provide base class dependencies from the derived class
     /// </summary>
     /// <exception cref="InvalidOperationException">
-    /// Thrown when <see cref="BearerTokenFactory.SetBearerTokenGetterFunc"/> not called prior
+    /// Thrown when <see cref="AuthorizationBearerTokenFactory.SetBearerTokenGetterFunc"/> not called prior
     /// </exception>
     protected ClientServiceBase(ILogger logger)
     {
         Logger = logger;
-        BearerTokenFactory.VerifyBearerTokenGetterFuncIsSet();
+        AuthorizationBearerTokenFactory.VerifyBearerTokenGetterFuncIsSet();
     }
 
     /// <summary>

@@ -21,5 +21,5 @@ builder.Services.AddRefitClient<ICatFactsClient>(c => c.BaseAddress = new Uri(ca
 
 IHost host = builder.Build();
 Task<string> GetBearerTokenAsyncFunc(CancellationToken cancellationToken) => host.Services.GetRequiredService<IOAuthClientService>().GetBearerTokenAsync(cancellationToken);
-BearerTokenFactory.SetBearerTokenGetterFunc(GetBearerTokenAsyncFunc);
+AuthorizationBearerTokenFactory.SetBearerTokenGetterFunc(GetBearerTokenAsyncFunc);
 host.Run();

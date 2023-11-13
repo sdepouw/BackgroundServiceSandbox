@@ -45,7 +45,7 @@ public static class ServiceCollectionExtensions
         RefitSettings? refitSettings = useAuthHeaderGetter
             ? new RefitSettings
             {
-                AuthorizationHeaderValueGetter = (_, cancellationToken) => BearerTokenFactory.GetBearerTokenAsync(cancellationToken)
+                AuthorizationHeaderValueGetter = (_, cancellationToken) => AuthorizationBearerTokenFactory.GetBearerTokenAsync(cancellationToken)
             } : null;
         var builder = services.AddRefitClient<TClientInterface>(refitSettings);
         if (disableAutoRedirect) builder = builder.DisableAutoRedirect();

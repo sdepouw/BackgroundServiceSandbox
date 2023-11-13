@@ -24,5 +24,5 @@ IHostBuilder builder = Host.CreateDefaultBuilder(args)
 
 IHost host = builder.Build();
 Task<string> GetBearerTokenAsyncFunc(CancellationToken cancellationToken) => host.Services.GetRequiredService<IOAuthClientService>().GetBearerTokenAsync(cancellationToken);
-BearerTokenFactory.SetBearerTokenGetterFunc(GetBearerTokenAsyncFunc);
+AuthorizationBearerTokenFactory.SetBearerTokenGetterFunc(GetBearerTokenAsyncFunc);
 host.Run();
