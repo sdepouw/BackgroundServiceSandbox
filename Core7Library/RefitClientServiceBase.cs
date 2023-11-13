@@ -29,7 +29,7 @@ public abstract class RefitClientServiceBase<TRefitClient>
     /// Constructor to provide base class dependencies from the derived class
     /// </summary>
     /// <exception cref="InvalidOperationException">
-    /// Thrown when <see cref="AuthorizationBearerTokenFactory.SetBearerTokenGetterFunc"/> not called prior
+    /// Thrown when <see cref="AuthBearerTokenFactory.SetBearerTokenGetterFunc"/> not called prior
     /// </exception>
     protected RefitClientServiceBase(TRefitClient refitClient, ILogger logger)
     {
@@ -44,7 +44,7 @@ public abstract class RefitClientServiceBase<TRefitClient>
         var usingBearerTokens = headerAttrs.Any(attr => attr.Headers.Any(h => h.StartsWith("Authorization: Bearer", StringComparison.CurrentCultureIgnoreCase)));
         if (usingBearerTokens)
         {
-            AuthorizationBearerTokenFactory.VerifyBearerTokenGetterFuncIsSet(Logger);
+            AuthBearerTokenFactory.VerifyBearerTokenGetterFuncIsSet(Logger);
         }
     }
 
