@@ -45,7 +45,6 @@ public static class ServiceCollectionExtensions
         RefitSettings? refitSettings = null;
         if (useAuthHeaderGetter)
         {
-            AuthorizationBearerTokenFactory.Enable();
             refitSettings = new RefitSettings
             {
                 AuthorizationHeaderValueGetter = (_, cancellationToken) => AuthorizationBearerTokenFactory.GetBearerTokenAsync(cancellationToken)

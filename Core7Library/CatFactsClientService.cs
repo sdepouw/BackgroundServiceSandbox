@@ -4,16 +4,14 @@ using Microsoft.Extensions.Options;
 
 namespace Core7Library;
 
-public class CatFactsClientService : ClientServiceBase, ICatFactsClientService
+public class CatFactsClientService : RefitClientServiceBase<ICatFactsClient>, ICatFactsClientService
 {
     private readonly CatFactsClientSettings _settings;
-    private readonly ICatFactsClient _catFactsClient;
 
-    public CatFactsClientService(IOptions<CatFactsClientSettings> settings, ILogger<CatFactsClientService> logger, ICatFactsClient catFactsClient)
-        : base (logger)
+    public CatFactsClientService(ICatFactsClient catFactsClient, ILogger<CatFactsClientService> logger, IOptions<CatFactsClientSettings> settings)
+        : base (catFactsClient, logger)
     {
         _settings = settings.Value;
-        _catFactsClient = catFactsClient;
     }
 
     public Task<List<CatFact>> GetTheFactsAsync(CancellationToken cancellationToken)
@@ -28,11 +26,11 @@ public class CatFactsClientService : ClientServiceBase, ICatFactsClientService
         // Func<Task<ApiResponse<string?>>> taskWithSimpleReturn = () => Task.FromResult(new ApiResponse<string?>(null!, "foo", new()));
         // MakeRequestAsync(taskWithSimpleReturn);
 
-        return GetApiResponse(_catFactsClient.GetTheFactsAsync(_settings.GetTheFactsRoute, cancellationToken));
+        return GetApiResponse(RefitClient.GetTheFactsAsync(_settings.GetTheFactsRoute, cancellationToken));
     }
 
     public Task<CatFact?> Explode(CancellationToken cancellationToken)
     {
-        return GetApiResponse(_catFactsClient.GetSingleFact("Whatever", new(), cancellationToken));
+        return GetApiResponse(RefitClient.GetSingleFact("Whatever", new(), cancellationToken));
     }
 }

@@ -12,7 +12,8 @@ namespace Core7Library.CatFacts;
 /// Provides means for making calls to Refit clients and handling exceptions, non-successful
 /// status codes, etc. Assumes requests are wrapped in <see cref="ApiResponse{T}"/>.
 /// </summary>
-public abstract class ClientServiceBase
+/// <typeparam name="TRefitClient">The Refit client interface in use.</typeparam>
+public abstract class RefitClientServiceBase<TRefitClient>
 {
     /// <summary>
     /// Logger provided by the derived class
@@ -20,15 +21,31 @@ public abstract class ClientServiceBase
     protected readonly ILogger Logger;
 
     /// <summary>
+    /// The instance of Refit client
+    /// </summary>
+    protected readonly TRefitClient RefitClient;
+
+    /// <summary>
     /// Constructor to provide base class dependencies from the derived class
     /// </summary>
     /// <exception cref="InvalidOperationException">
     /// Thrown when <see cref="AuthorizationBearerTokenFactory.SetBearerTokenGetterFunc"/> not called prior
     /// </exception>
-    protected ClientServiceBase(ILogger logger)
+    protected RefitClientServiceBase(TRefitClient refitClient, ILogger logger)
     {
+        RefitClient = refitClient;
         Logger = logger;
-        AuthorizationBearerTokenFactory.VerifyBearerTokenGetterFuncIsSet();
+        CheckClientBearerTokenUsage();
+    }
+
+    private void CheckClientBearerTokenUsage()
+    {
+        var attrs = typeof(TRefitClient).GetCustomAttributes(false).Where(attr => attr is HeadersAttribute).Cast<HeadersAttribute>();
+        var usingBearerTokens = attrs.Any(attr => attr.Headers.Any(h => h.StartsWith("Authorization: Bearer", StringComparison.CurrentCultureIgnoreCase)));
+        if (usingBearerTokens)
+        {
+            AuthorizationBearerTokenFactory.VerifyBearerTokenGetterFuncIsSet(Logger);
+        }
     }
 
     /// <summary>
