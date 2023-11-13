@@ -20,17 +20,21 @@ public static class BearerTokenFactory
     /// </summary>
     /// <returns>Token string to use in Authorization Bearer header</returns>
     /// <exception cref="InvalidOperationException">
-    /// Thrown when <see cref="SetBearerTokenGetterFunc"/> not called prior
-    /// to calling this method
+    /// Thrown when <see cref="SetBearerTokenGetterFunc"/> not called prior to calling this method
     /// </exception>
     public static Task<string> GetBearerTokenAsync(CancellationToken cancellationToken)
+    {
+        VerifyBearerTokenGetterFuncIsSet();
+        return _getBearerTokenAsyncFunc!(cancellationToken);
+    }
+
+    public static void VerifyBearerTokenGetterFuncIsSet()
     {
         if (_getBearerTokenAsyncFunc is null)
         {
             throw new InvalidOperationException(
                 $"Cannot call {nameof(BearerTokenFactory)}.{nameof(GetBearerTokenAsync)} without calling {nameof(BearerTokenFactory)}.{nameof(SetBearerTokenGetterFunc)} first!");
         }
-        return _getBearerTokenAsyncFunc(cancellationToken);
     }
 
     public static void SetBearerTokenGetterFunc(Func<CancellationToken, Task<string>> getBearerTokenAsyncFunc)

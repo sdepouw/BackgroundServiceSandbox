@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text.Json;
+using Core7Library.BearerTokenStuff;
 using Core7Library.Extensions;
 using Microsoft.Extensions.Logging;
 using Refit;
@@ -21,9 +22,13 @@ public abstract class ClientServiceBase
     /// <summary>
     /// Constructor to provide base class dependencies from the derived class
     /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when <see cref="BearerTokenFactory.SetBearerTokenGetterFunc"/> not called prior
+    /// </exception>
     protected ClientServiceBase(ILogger logger)
     {
         Logger = logger;
+        BearerTokenFactory.VerifyBearerTokenGetterFuncIsSet();
     }
 
     /// <summary>
