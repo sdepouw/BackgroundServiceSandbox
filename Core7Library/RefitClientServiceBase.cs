@@ -5,7 +5,7 @@ using Core7Library.Extensions;
 using Microsoft.Extensions.Logging;
 using Refit;
 
-namespace Core7Library.CatFacts;
+namespace Core7Library;
 
 /// <summary>
 /// Class to inherit for any class that accesses Refit client interfaces.
