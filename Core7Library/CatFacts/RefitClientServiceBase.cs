@@ -40,8 +40,8 @@ public abstract class RefitClientServiceBase<TRefitClient>
 
     private void CheckClientBearerTokenUsage()
     {
-        var attrs = typeof(TRefitClient).GetCustomAttributes(false).Where(attr => attr is HeadersAttribute).Cast<HeadersAttribute>();
-        var usingBearerTokens = attrs.Any(attr => attr.Headers.Any(h => h.StartsWith("Authorization: Bearer", StringComparison.CurrentCultureIgnoreCase)));
+        var headerAttrs = typeof(TRefitClient).GetCustomAttributes(false).Where(attr => attr is HeadersAttribute).Cast<HeadersAttribute>();
+        var usingBearerTokens = headerAttrs.Any(attr => attr.Headers.Any(h => h.StartsWith("Authorization: Bearer", StringComparison.CurrentCultureIgnoreCase)));
         if (usingBearerTokens)
         {
             AuthorizationBearerTokenFactory.VerifyBearerTokenGetterFuncIsSet(Logger);

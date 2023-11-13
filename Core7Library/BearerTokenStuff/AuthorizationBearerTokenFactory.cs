@@ -38,11 +38,17 @@ public static class AuthorizationBearerTokenFactory
     public static void VerifyBearerTokenGetterFuncIsSet(ILogger? logger = null)
     {
         if (_getBearerTokenAsyncFunc is not null) return;
-
-        const string msg = $"Cannot call {nameof(AuthorizationBearerTokenFactory)}.{nameof(GetBearerTokenAsync)} without calling {nameof(AuthorizationBearerTokenFactory)}.{nameof(SetBearerTokenGetterFunc)} first";
-        var exception = new InvalidOperationException(msg);
-        logger?.LogError(exception, "Authorization Bearer Token Factory attempted to be used before its getter function was set");
-        throw exception;
+        try
+        {
+            const string msg = $"Cannot call {nameof(AuthorizationBearerTokenFactory)}.{nameof(GetBearerTokenAsync)} without calling {nameof(AuthorizationBearerTokenFactory)}.{nameof(SetBearerTokenGetterFunc)} first";
+            throw new InvalidOperationException(msg);
+        }
+        catch (Exception ex)
+        {
+            // Logger has to be invoked manually due to where this is called in the application lifetime
+            logger?.LogError(ex, "Authorization Bearer Token Factory attempted to be used before its getter function was set");
+            throw;
+        }
     }
 
     public static void SetBearerTokenGetterFunc(Func<CancellationToken, Task<string>> getBearerTokenAsyncFunc)
