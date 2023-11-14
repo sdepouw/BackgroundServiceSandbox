@@ -46,7 +46,7 @@ public static class AuthBearerTokenFactory
         catch (Exception ex)
         {
             // Logger has to be invoked manually due to where this is called in the application lifetime
-            logger?.LogError(ex, "Authorization Bearer Token Factory attempted to be used before its getter function was set");
+            logger?.LogError(ex, "{ClassName} attempted to be used before its getter function was set", nameof(AuthBearerTokenFactory));
             throw;
         }
     }
