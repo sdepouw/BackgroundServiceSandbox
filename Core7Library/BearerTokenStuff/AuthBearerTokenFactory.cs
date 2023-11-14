@@ -11,7 +11,7 @@ namespace Core7Library.BearerTokenStuff;
 /// After building the <see cref="IHost"/>, call <see cref="SetBearerTokenGetterFunc" /> so this factory knows how to get
 /// the bearer token. If that doesn't happen, then <see cref="InvalidOperationException"/> will be thrown.
 /// </summary>
-public static class AuthorizationBearerTokenFactory
+public static class AuthBearerTokenFactory
 {
     private static Func<CancellationToken, Task<string>>? _getBearerTokenAsyncFunc;
 
@@ -40,7 +40,7 @@ public static class AuthorizationBearerTokenFactory
         if (_getBearerTokenAsyncFunc is not null) return;
         try
         {
-            const string msg = $"Cannot call {nameof(AuthorizationBearerTokenFactory)}.{nameof(GetBearerTokenAsync)} without calling {nameof(AuthorizationBearerTokenFactory)}.{nameof(SetBearerTokenGetterFunc)} first";
+            const string msg = $"Cannot call {nameof(AuthBearerTokenFactory)}.{nameof(GetBearerTokenAsync)} without calling {nameof(AuthBearerTokenFactory)}.{nameof(SetBearerTokenGetterFunc)} first";
             throw new InvalidOperationException(msg);
         }
         catch (Exception ex)
@@ -51,6 +51,9 @@ public static class AuthorizationBearerTokenFactory
         }
     }
 
+    /// <summary>
+    /// Provide a delegate that returns a bearer token to use for authorization
+    /// </summary>
     public static void SetBearerTokenGetterFunc(Func<CancellationToken, Task<string>> getBearerTokenAsyncFunc)
         => _getBearerTokenAsyncFunc = getBearerTokenAsyncFunc;
 }

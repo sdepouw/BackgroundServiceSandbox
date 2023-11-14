@@ -25,7 +25,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The service collection being built</param>
     /// <param name="configureHttpClient">Action to take when configuring the <see cref="HttpClient"/></param>
-    /// <param name="useAuthHeaderGetter">When true, will configure Refit to attempt to fetch a bearer token from <see cref="IBearerTokenFactory"/></param>
+    /// <param name="useAuthHeaderGetter">When true, will configure Refit to attempt to fetch a bearer token from <see cref="AuthBearerTokenFactory"/></param>
     /// <param name="enableRequestResponseLogging">When true, will log every single HTTP request and response using <see cref="HttpLoggingHandler"/></param>
     /// <param name="disableAutoRedirect">
     /// When true, will attempt to disable the ability for this client to do redirects when making HTTP calls.
@@ -47,7 +47,7 @@ public static class ServiceCollectionExtensions
         {
             refitSettings = new RefitSettings
             {
-                AuthorizationHeaderValueGetter = (_, cancellationToken) => AuthorizationBearerTokenFactory.GetBearerTokenAsync(cancellationToken)
+                AuthorizationHeaderValueGetter = (_, cancellationToken) => AuthBearerTokenFactory.GetBearerTokenAsync(cancellationToken)
             };
         }
         var builder = services.AddRefitClient<TClientInterface>(refitSettings);
