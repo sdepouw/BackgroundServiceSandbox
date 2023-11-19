@@ -1,8 +1,7 @@
-﻿using Core7Library.CatFacts;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Core7Library;
+namespace Core7Library.CatFacts;
 
 public class CatFactsClientService : RefitClientServiceBase<ICatFactsClient>, ICatFactsClientService
 {
