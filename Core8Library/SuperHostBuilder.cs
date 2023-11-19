@@ -137,7 +137,6 @@ public class SuperHostBuilder
         return this;
     }
 
-    // TODO: Perform validation here? Logging might not be set up yet though.
     /// <summary>
     /// Configures settings for a particular type, setting up DataAnnotations validation
     /// for them and making them available throughout the application by injecting
