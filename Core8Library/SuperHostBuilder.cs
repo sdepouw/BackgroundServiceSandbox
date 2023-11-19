@@ -11,7 +11,7 @@ using Serilog;
 namespace Core8Library;
 
 /// <summary>
-/// Largely a wrapper around <see cref="HostApplicationBuilder"/>, but with additional state and restrictions
+/// A wrapper around <see cref="HostApplicationBuilder"/>, but with additional state and restrictions
 /// in place so that consumers are forced to perform validation, provide OAuth mechanisms (when the need
 /// arises), etc.
 /// </summary>
@@ -19,7 +19,7 @@ public class SuperHostBuilder
 {
     private readonly HostApplicationBuilder _builder = Host.CreateApplicationBuilder();
     private readonly List<Type> _settingsTypes = new();
-    private Func<CancellationToken, Task<string>>? _getBearerTokenAsyncFunc = null;
+    private Func<IHost, CancellationToken, Task<string>>? _getBearerTokenAsyncFunc = null;
 
     private SuperHostBuilder() { }
 
@@ -45,7 +45,8 @@ public class SuperHostBuilder
     /// </summary>
     public SuperHostBuilder WithDependenciesRegistered()
     {
-        // TODO: Autofac
+        _builder.ConfigureContainer<ContainerBuilder>(new AutofacServiceProviderFactory(),
+            containerBuilder => containerBuilder.RegisterModule(new SuperAutofacModule()));
         return this;
     }
 
