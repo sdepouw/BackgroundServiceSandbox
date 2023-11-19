@@ -34,7 +34,7 @@ public class SuperHostBuilder
         IHost host = _builder.Build();
         if (_getBearerTokenAsyncFunc is not null)
         {
-            AuthBearerTokenFactory.SetBearerTokenGetterFunc(_getBearerTokenAsyncFunc);
+            AuthBearerTokenFactory.SetBearerTokenGetterFunc(token => _getBearerTokenAsyncFunc(host, token));
         }
         // TODO: Config validation
         return host;
@@ -86,7 +86,7 @@ public class SuperHostBuilder
     /// </param>
     /// <typeparam name="TClientInterface">A Refit client interface.</typeparam>
     /// <returns>The builder used to build this client, to allow for further customization if needed.</returns>
-    public SuperHostBuilder WithRefitClient<TClientInterface>(Action<HttpClient> configureHttpClient, Func<CancellationToken, Task<string>>? getBearerTokenAsyncFunc = null, bool enableRequestResponseLogging = false,
+    public SuperHostBuilder WithRefitClient<TClientInterface>(Action<HttpClient> configureHttpClient, Func<IHost, CancellationToken, Task<string>>? getBearerTokenAsyncFunc = null, bool enableRequestResponseLogging = false,
         bool disableAutoRedirect = false, int handlerLifetimeInMinutes = 10)
         where TClientInterface : class
     {
@@ -120,12 +120,16 @@ public class SuperHostBuilder
     /// for them and making them available throughout the application by injecting
     /// <see cref="IOptions{TOptions}"/> into a constructor
     /// </summary>
-    public SuperHostBuilder WithSettings<TSettings>()
+    /// <returns>
+    /// A <typeparamref name="TSettings"/> instance hydrated with settings from configuration.
+    /// These are not validated, but are necessary for use when configuring the service on startup.
+    /// </returns>
+    public TSettings WithSettings<TSettings>()
         where TSettings : class
     {
         _builder.Services.AddRequiredSettings<TSettings>();
         _settingsTypes.Add(typeof(TSettings));
-        return this;
+        return _builder.Configuration.GetRequiredSettings<TSettings>();
     }
 
     /// <summary>
