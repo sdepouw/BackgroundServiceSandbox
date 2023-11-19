@@ -12,7 +12,7 @@ namespace Core8Library;
 /// <param name="concreteTypesToIgnore">
 /// Types for Autofac to ignore; pass the implementation type, not the interface type
 /// </param>
-public class SuperAutofacModule(params Type[] concreteTypesToIgnore) : AutofacModule
+internal class SuperAutofacModule(params Type[] concreteTypesToIgnore) : AutofacModule
 {
     protected override void Load(ContainerBuilder builder)
     {
