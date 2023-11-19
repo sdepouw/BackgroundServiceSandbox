@@ -6,12 +6,18 @@ using WorkServiceEight;
 SuperHostBuilder superBuilder = SuperHostBuilder.Create<Worker8>();
 var mySettings = superBuilder.WithSettings<MySettings>();
 var catFactsSettings = superBuilder.WithSettings<CatFactsClientSettings>();
-superBuilder.WithRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("https://example.com/"),
-    enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging);
-superBuilder.WithRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri(catFactsSettings.Host),
-    getBearerTokenAsyncFunc: GetBearerTokenAsyncFunc, enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging);
-IHost host = superBuilder.BuildAndValidate();
+IHost host = superBuilder
+    .WithRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("https://example.com/"), enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging)
+    .WithRefitClient<ICatFactsClient>(ConfigureCatFactsClient, getBearerTokenAsyncFunc: GetBearerTokenAsyncFunc, enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging)
+    .BuildAndValidate();
+
 host.Run();
+
+void ConfigureCatFactsClient(HttpClient c)
+{
+    c.BaseAddress = new Uri(catFactsSettings.Host);
+    c.Timeout = TimeSpan.FromSeconds(3);
+}
 
 Task<string> GetBearerTokenAsyncFunc(IHost createdHost, CancellationToken token)
     => createdHost.Services.GetRequiredService<IOAuthClientService>().GetBearerTokenAsync(token);
