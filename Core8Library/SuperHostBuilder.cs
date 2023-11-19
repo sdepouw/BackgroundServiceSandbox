@@ -26,6 +26,19 @@ public class SuperHostBuilder
     private SuperHostBuilder() { }
 
     /// <summary>
+    /// Creates a new <see cref="SuperHostBuilder"/> configured to run as a Windows service,
+    /// with Serilog logging and dependencies registered with Autofac
+    /// </summary>
+    /// <param name="autofacModulesToRegister">Any custom Autofac modules that should also be registered</param>
+    /// <typeparam name="THostedService">The worker service class to register</typeparam>
+    public static SuperHostBuilder Create<THostedService>(params Module[] autofacModulesToRegister)
+        where THostedService : class, IHostedService
+        => new SuperHostBuilder()
+            .WithHostedWindowsService<THostedService>()
+            .WithLogging()
+            .WithDependenciesRegistered(autofacModulesToRegister);
+
+    /// <summary>
     /// Creates an <see cref="IHost" /> and performs validation on configured settings (DataAnnotations, connection strings)
     /// and the configured logger (make sure it can write to file if configured to do so)
     /// </summary>
@@ -45,10 +58,18 @@ public class SuperHostBuilder
     /// <summary>
     /// Registers dependencies for this library as well as for the calling service's
     /// </summary>
-    public SuperHostBuilder WithDependenciesRegistered()
+    /// <param name="autofacModulesToRegister">Any custom Autofac modules that should also be registered</param>
+    public SuperHostBuilder WithDependenciesRegistered(Module[] autofacModulesToRegister)
     {
         _builder.ConfigureContainer<ContainerBuilder>(new AutofacServiceProviderFactory(),
-            containerBuilder => containerBuilder.RegisterModule(new SuperAutofacModule()));
+            containerBuilder =>
+            {
+                containerBuilder.RegisterModule(new SuperAutofacModule());
+                foreach (var autofacModule in autofacModulesToRegister)
+                {
+                    containerBuilder.RegisterModule(autofacModule);
+                }
+            });
         return this;
     }
 
@@ -133,15 +154,4 @@ public class SuperHostBuilder
         _settingsTypes.Add(typeof(TSettings));
         return _builder.Configuration.GetRequiredSettings<TSettings>();
     }
-
-    /// <summary>
-    /// Creates a new <see cref="SuperHostBuilder"/> configured to run as a Windows service,
-    /// with Serilog logging and dependencies registered with Autofac
-    /// </summary>
-    /// <typeparam name="THostedService">The worker service class to register</typeparam>
-    public static SuperHostBuilder Create<THostedService>() where THostedService : class, IHostedService
-        => new SuperHostBuilder()
-            .WithHostedWindowsService<THostedService>()
-            .WithLogging()
-            .WithDependenciesRegistered();
 }
