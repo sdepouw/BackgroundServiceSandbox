@@ -1,25 +1,17 @@
-using Core7Library;
 using Core7Library.BearerTokenStuff;
 using Core7Library.CatFacts;
-using Core7Library.Extensions;
-using Serilog;
+using Core8Library;
 using WorkServiceEight;
 
-HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
-builder.AddSettings<MySettings>();
-builder.AddSettings<CatFactsClientSettings>();
-builder.Services.AddHostedService<Worker8>();
-builder.Services.AddSerilog(config => config.ReadFrom.Configuration(builder.Configuration));
-
-builder.Services.AddTransient<IOAuthClientService, OAuthClientService>();
-builder.Services.AddTransient<ICatFactsClientService, CatFactsClientService>();
-
-var mySettings = builder.GetRequiredSettings<MySettings>();
-var catFactsSettings = builder.GetRequiredSettings<CatFactsClientSettings>();
-builder.Services.AddRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("https://example.com/"), enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging);
-builder.Services.AddRefitClient<ICatFactsClient>(c => c.BaseAddress = new Uri(catFactsSettings.Host), useAuthHeaderGetter: true, enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging);
-
-IHost host = builder.Build();
-Task<string> GetBearerTokenAsyncFunc(CancellationToken cancellationToken) => host.Services.GetRequiredService<IOAuthClientService>().GetBearerTokenAsync(cancellationToken);
-AuthBearerTokenFactory.SetBearerTokenGetterFunc(GetBearerTokenAsyncFunc);
+SuperHostBuilder superBuilder = SuperHostBuilder.Create<Worker8>();
+var mySettings = superBuilder.WithSettings<MySettings>();
+var catFactsSettings = superBuilder.WithSettings<CatFactsClientSettings>();
+superBuilder.WithRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("https://example.com/"),
+    enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging);
+superBuilder.WithRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri(catFactsSettings.Host),
+    getBearerTokenAsyncFunc: GetBearerTokenAsyncFunc, enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging);
+IHost host = superBuilder.BuildAndValidate();
 host.Run();
+
+Task<string> GetBearerTokenAsyncFunc(IHost createdHost, CancellationToken token)
+    => createdHost.Services.GetRequiredService<IOAuthClientService>().GetBearerTokenAsync(token);
