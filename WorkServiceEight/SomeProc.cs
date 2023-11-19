@@ -11,14 +11,8 @@ public class SomeProc(string name, ICatFactsClientService catFactsClientService)
     {
         DontStopMeNow = true;
         Console.WriteLine("Starting {0}. Don't stop me now!", Name);
-        // for (int delay = 0; delay < 10; delay++)
-        // {
-        //     Console.WriteLine("{0} working...", Name);
-        //     await Task.Delay(1000);
-        // }
-
-        // ApiResponse<List<CatFact>?> theFacts = await catFactsClient.GetTheFactsAsync("facts", CancellationToken.None);
-        // Console.WriteLine("{0} Done! Found {1} Cat Facts!", Name, theFacts.Content?.Count ?? 0);
+        List<CatFact> theFacts = await catFactsClientService.GetTheFactsAsync(cancellationToken);
+        Console.WriteLine("{0} Done! Found {1} Cat Facts!", Name, theFacts.Count);
         await catFactsClientService.Explode(cancellationToken);
         DontStopMeNow = false;
     }

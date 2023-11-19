@@ -1,8 +1,7 @@
-﻿using Core7Library.CatFacts;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Core7Library;
+namespace Core7Library.CatFacts;
 
 public class CatFactsClientService : RefitClientServiceBase<ICatFactsClient>, ICatFactsClientService
 {
@@ -26,7 +25,7 @@ public class CatFactsClientService : RefitClientServiceBase<ICatFactsClient>, IC
         // Func<Task<ApiResponse<string?>>> taskWithSimpleReturn = () => Task.FromResult(new ApiResponse<string?>(null!, "foo", new()));
         // MakeRequestAsync(taskWithSimpleReturn);
 
-        return GetApiResponse(RefitClient.GetTheFactsAsync(_settings.GetTheFactsRoute, cancellationToken));
+        return GetApiResponse(RefitClient.GetTheFactsAsync(_settings.GetTheFactsRoute, cancellationToken), new List<CatFact>());
     }
 
     public Task<CatFact?> Explode(CancellationToken cancellationToken)

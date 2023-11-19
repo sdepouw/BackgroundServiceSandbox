@@ -1,25 +1,24 @@
 using Core7Library;
 using Core7Library.BearerTokenStuff;
 using Core7Library.CatFacts;
-using Core7Library.Extensions;
-using Serilog;
+using Core8Library;
 using WorkServiceEight;
 
-HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
-builder.AddSettings<MySettings>();
-builder.AddSettings<CatFactsClientSettings>();
-builder.Services.AddHostedService<Worker8>();
-builder.Services.AddSerilog(config => config.ReadFrom.Configuration(builder.Configuration));
+SuperHostBuilder superBuilder = SuperHostBuilder.Create<Worker8>(new Core7LibraryAutofacModule());
+var mySettings = superBuilder.WithSettings<MySettings>();
+var catFactsSettings = superBuilder.WithSettings<CatFactsClientSettings>();
+IHost host = superBuilder
+    .WithRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("https://example.com/"), enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging)
+    .WithRefitClient<ICatFactsClient>(ConfigureCatFactsClient, getBearerTokenAsyncFunc: GetBearerTokenAsyncFunc, enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging)
+    .BuildAndValidate();
 
-builder.Services.AddTransient<IOAuthClientService, OAuthClientService>();
-builder.Services.AddTransient<ICatFactsClientService, CatFactsClientService>();
-
-var mySettings = builder.GetRequiredSettings<MySettings>();
-var catFactsSettings = builder.GetRequiredSettings<CatFactsClientSettings>();
-builder.Services.AddRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("https://example.com/"), enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging);
-builder.Services.AddRefitClient<ICatFactsClient>(c => c.BaseAddress = new Uri(catFactsSettings.Host), useAuthHeaderGetter: true, enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging);
-
-IHost host = builder.Build();
-Task<string> GetBearerTokenAsyncFunc(CancellationToken cancellationToken) => host.Services.GetRequiredService<IOAuthClientService>().GetBearerTokenAsync(cancellationToken);
-AuthBearerTokenFactory.SetBearerTokenGetterFunc(GetBearerTokenAsyncFunc);
 host.Run();
+
+void ConfigureCatFactsClient(HttpClient c)
+{
+    c.BaseAddress = new Uri(catFactsSettings.Host);
+    c.Timeout = TimeSpan.FromSeconds(3);
+}
+
+Task<string> GetBearerTokenAsyncFunc(IHost createdHost, CancellationToken token)
+    => createdHost.Services.GetRequiredService<IOAuthClientService>().GetBearerTokenAsync(token);

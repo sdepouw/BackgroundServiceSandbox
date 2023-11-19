@@ -98,7 +98,6 @@ public abstract class RefitClientServiceBase<TRefitClient>
         {
             Logger.LogError(ex, "[{ClientServiceName}.{RequestMethodName}] HTTP request succeeded, but a JsonException was thrown on deserialization",
                 GetType().Name, caller);
-            return defaultOnError;
         }
         catch (ApiException ex)
         {
@@ -106,7 +105,12 @@ public abstract class RefitClientServiceBase<TRefitClient>
             string content = ex.Content.TryFormatJson() ?? "N/A";
             Logger.LogError(ex, "[{ClientServiceName}.{RequestMethodName}] HTTP request failed: {ReasonPhrase} | Content: {Content}",
                 GetType().Name, caller, reasonPhrase, content);
-            return defaultOnError;
         }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[{ClientServiceName}.{RequestMethodName}] HTTP request failed due to exception",
+                GetType().Name, caller);
+        }
+        return defaultOnError;
     }
 }
