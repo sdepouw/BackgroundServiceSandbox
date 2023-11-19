@@ -1,4 +1,6 @@
-﻿using Core7Library;
+﻿using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using Core7Library;
 using Core7Library.BearerTokenStuff;
 using Core7Library.Extensions;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,8 +26,8 @@ public class SuperHostBuilder
     private SuperHostBuilder() { }
 
     /// <summary>
-    /// Creates an <see cref="IHost" /> and performs validation on configured settings,
-    /// running through DataAnnotations and more
+    /// Creates an <see cref="IHost" /> and performs validation on configured settings (DataAnnotations, connection strings)
+    /// and the configured logger (make sure it can write to file if configured to do so)
     /// </summary>
     /// <returns>An <see cref="IHost"/> that can be run</returns>
     /// <exception cref="ApplicationException">Thrown when a validation error occurs</exception>
@@ -36,7 +38,7 @@ public class SuperHostBuilder
         {
             AuthBearerTokenFactory.SetBearerTokenGetterFunc(token => _getBearerTokenAsyncFunc(host, token));
         }
-        // TODO: Config validation
+        HostValidator.Validate(host, _settingsTypes);
         return host;
     }
 
@@ -129,24 +131,6 @@ public class SuperHostBuilder
     {
         _builder.Services.AddRequiredSettings<TSettings>();
         _settingsTypes.Add(typeof(TSettings));
-        return _builder.Configuration.GetRequiredSettings<TSettings>();
-    }
-
-    /// <summary>
-    /// Get an instance of settings from config
-    /// </summary>
-    /// <remarks>
-    /// <see cref="WithSettings{TSettings}"/> must be called prior to calling this
-    /// </remarks>
-    /// <exception cref="InvalidOperationException">Thrown when this method is called before calling <see cref="WithSettings{TSettings}"/></exception>
-    public TSettings GetSettings<TSettings>()
-        where TSettings : class
-    {
-        var settingsType = typeof(TSettings);
-        if (!_settingsTypes.Contains(settingsType))
-        {
-            throw new InvalidOperationException($"Cannot call {nameof(GetSettings)}<{settingsType.Name}> without calling {nameof(WithSettings)}<{settingsType.Name}> first.");
-        }
         return _builder.Configuration.GetRequiredSettings<TSettings>();
     }
 
