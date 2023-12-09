@@ -1,6 +1,6 @@
-﻿namespace Core8WebAPI;
+﻿namespace Core8WebAPI.Handlers;
 
-public interface ISimpleHandler
+public interface IPatienceHandler
 {
     Task<string> HandleAsync(CancellationToken cancellationToken);
 }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 
-namespace Core8WebAPI;
+namespace Core8WebAPI.Handlers;
 
 public class SimpleHandler(IOptions<ExampleSettings> settings) : ISimpleHandler
 {

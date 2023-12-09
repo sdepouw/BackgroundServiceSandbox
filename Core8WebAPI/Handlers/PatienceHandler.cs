@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 
-namespace Core8WebAPI;
+namespace Core8WebAPI.Handlers;
 
 public class PatienceHandler(ILogger<PatienceHandler> logger, IOptions<ExampleSettings> settings) : IPatienceHandler
 {
