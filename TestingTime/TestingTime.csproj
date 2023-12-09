@@ -27,6 +27,13 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Core7Library\Core7Library.csproj" />
+      <ProjectReference Include="..\Core8WebAPI\Core8WebAPI.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Microsoft.AspNetCore.Http.Abstractions">
+        <HintPath>C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\8.0.0\Microsoft.AspNetCore.Http.Abstractions.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>
