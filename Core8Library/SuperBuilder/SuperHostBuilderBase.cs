@@ -12,25 +12,45 @@ using Serilog;
 
 namespace Core8Library.SuperBuilder;
 
-public abstract class SuperHostBuilderBase<TBuilder>
-    where TBuilder : SuperHostBuilderBase<TBuilder>
+/// <summary>
+/// A base class suited for setting up builders of various kinds of applications
+/// </summary>
+/// <typeparam name="TBuilder">
+/// The derived class; used so that the various "With" methods can return itself, and return the derived class type
+/// </typeparam>
+/// <typeparam name="THost">The kind of <see cref="IHost"/> that is created upon building</typeparam>
+public abstract class SuperHostBuilderBase<TBuilder, THost>
+    where TBuilder : SuperHostBuilderBase<TBuilder, THost>
+    where THost : IHost
 {
+    /// <summary>
+    /// Provide the instance of the builder class being used
+    /// </summary>
     protected abstract IHostApplicationBuilder Builder { get; }
-    protected abstract IHost BuildApp();
-    protected abstract void RegisterDependencies(AutofacServiceProviderFactory factory, Action<ContainerBuilder> configure);
+    /// <summary>
+    /// Because <see cref="IHostApplicationBuilder"/> does not expose a "Build" method, call it by overriding this
+    /// </summary>
+    protected abstract THost Build();
+
+    /// <summary>
+    /// How dependencies are registered varies by builder. Provide the registration implementation here for Autofac.
+    /// </summary>
+    /// <param name="factory">The provider factory to assign</param>
+    /// <param name="configure">When configuring <see cref="ContainerBuilder"/>, pass this in</param>
+    protected abstract void RegisterAutofac(AutofacServiceProviderFactory factory, Action<ContainerBuilder> configure);
 
     private readonly List<Type> _settingsTypes = new();
     private Func<IHost, CancellationToken, Task<string>>? _getBearerTokenAsyncFunc;
 
     /// <summary>
-    /// Creates an <see cref="IHost" /> and performs validation on configured settings (DataAnnotations, connection strings)
+    /// Creates the application and performs validation on configured settings (DataAnnotations, connection strings)
     /// and the configured logger (make sure it can write to file if configured to do so)
     /// </summary>
-    /// <returns>An <see cref="IHost"/> that can be run</returns>
+    /// <returns>An application that can be run</returns>
     /// <exception cref="ApplicationException">Thrown when a validation error occurs</exception>
-    public IHost BuildAndValidate()
+    public THost BuildAndValidate()
     {
-        IHost host = BuildApp();
+        THost host = Build();
         if (_getBearerTokenAsyncFunc is not null)
         {
             AuthBearerTokenFactory.SetBearerTokenGetterFunc(token => _getBearerTokenAsyncFunc(host, token));
@@ -70,7 +90,7 @@ public abstract class SuperHostBuilderBase<TBuilder>
                 containerBuilder.RegisterModule(autofacModule);
             }
         }
-        RegisterDependencies(new AutofacServiceProviderFactory(), ConfigureAutofac);
+        RegisterAutofac(new AutofacServiceProviderFactory(), ConfigureAutofac);
         return (TBuilder)this;
     }
 
