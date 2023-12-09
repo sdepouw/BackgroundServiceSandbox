@@ -3,7 +3,7 @@ using Refit;
 
 namespace Core7Library.CatFacts;
 
-[Headers("Authorization: Bearer")]
+// [Headers("Authorization: Bearer")]
 public interface ICatFactsClient
 {
     /// <summary>
