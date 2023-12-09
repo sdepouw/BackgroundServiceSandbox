@@ -1,6 +1,6 @@
 ﻿namespace Core8WebAPI;
 
-public interface IExampleDep
+public interface IExampleHandler
 {
     Task<string> GimmeAsync(CancellationToken cancellationToken);
 }

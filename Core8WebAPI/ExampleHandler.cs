@@ -2,7 +2,7 @@
 
 namespace Core8WebAPI;
 
-public class ExampleDep(IOptions<ExampleSettings> settings) : IExampleDep
+public class ExampleHandler(IOptions<ExampleSettings> settings) : IExampleHandler
 {
     private readonly ExampleSettings _settings = settings.Value;
 
