@@ -26,9 +26,9 @@ public class RequestResponseLogFilter(ILogger<RequestResponseLogFilter> logger, 
         const string responseLogMessage = """
                                           
                                           =============================================================
-                                          HTTP Response: {UniqueRequestId}
+                                          HTTP Response {UniqueRequestId}
                                           Response Time: {ResponseTime}
-                                          StatusCode: {StatusCode}
+                                          Result: {Result}
                                           =============================================================
                                           """;
         logger.LogInformation(responseLogMessage, uniqueRequestId, Stopwatch.Elapsed, context.HttpContext.Response.StatusCode);
