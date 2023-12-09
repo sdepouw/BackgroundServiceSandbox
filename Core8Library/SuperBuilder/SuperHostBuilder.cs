@@ -3,6 +3,7 @@ using Autofac.Extensions.DependencyInjection;
 using Core7Library;
 using Core7Library.BearerTokenStuff;
 using Core7Library.Extensions;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -10,20 +11,29 @@ using Microsoft.Extensions.Options;
 using Refit;
 using Serilog;
 
-namespace Core8Library;
+namespace Core8Library.SuperBuilder;
 
-/// <summary>
-/// A wrapper around <see cref="HostApplicationBuilder"/>, but with additional state and restrictions
-/// in place so that consumers are forced to perform validation, provide OAuth mechanisms (when the need
-/// arises), etc.
-/// </summary>
 public class SuperHostBuilder
 {
-    private readonly HostApplicationBuilder _builder = Host.CreateApplicationBuilder();
+    private readonly IHostBuilderWrapper _builder;
+
     private readonly List<Type> _settingsTypes = new();
     private Func<IHost, CancellationToken, Task<string>>? _getBearerTokenAsyncFunc = null;
 
-    private SuperHostBuilder() { }
+    private SuperHostBuilder(IHostBuilderWrapper builder) => _builder = builder;
+
+    /// <summary>
+    /// Creates a new <see cref="WebApplicationBuilder"/>, with Serilog logging and dependencies registered with Autofac
+    /// </summary>
+    /// <param name="autofacModulesToRegister">Any custom Autofac modules that should also be registered</param>
+    public static SuperHostBuilder CreateWebApp(params Module[] autofacModulesToRegister)
+        => CreateWebAppManually().WithLogging().WithDependenciesRegistered(autofacModulesToRegister);
+
+    /// <summary>
+    /// Only call this if you want to configure logging and DI manually.
+    /// Normally, always call <see cref="CreateWebApp"/>.
+    /// </summary>
+    public static SuperHostBuilder CreateWebAppManually() => new(new WebApplicationBuilderWrapper());
 
     /// <summary>
     /// Creates a new <see cref="SuperHostBuilder"/> configured to run as a Windows service,
@@ -31,12 +41,19 @@ public class SuperHostBuilder
     /// </summary>
     /// <param name="autofacModulesToRegister">Any custom Autofac modules that should also be registered</param>
     /// <typeparam name="THostedService">The worker service class to register</typeparam>
-    public static SuperHostBuilder Create<THostedService>(params Module[] autofacModulesToRegister)
-        where THostedService : class, IHostedService
-        => new SuperHostBuilder()
-            .WithHostedWindowsService<THostedService>()
+    public static SuperHostBuilder CreateHostApp<THostedService>(params Module[] autofacModulesToRegister)
+        where THostedService : class, IHostedService => CreateHostAppManually<THostedService>()
             .WithLogging()
             .WithDependenciesRegistered(autofacModulesToRegister);
+
+    /// <summary>
+    /// Only call this if you want to configure logging and DI manually.
+    /// Still registers the app as a hosted service.
+    /// Normally, always call <see cref="CreateHostApp{THostedService}"/>.
+    /// </summary>
+    public static SuperHostBuilder CreateHostAppManually<THostedService>() where THostedService : class, IHostedService
+        => new SuperHostBuilder(new HostApplicationBuilderWrapper())
+        .WithHostedWindowsService<THostedService>();
 
     /// <summary>
     /// Creates an <see cref="IHost" /> and performs validation on configured settings (DataAnnotations, connection strings)
@@ -56,31 +73,37 @@ public class SuperHostBuilder
     }
 
     /// <summary>
+    /// Configures settings for a particular type, setting up DataAnnotations validation
+    /// for them and making them available throughout the application by injecting
+    /// <see cref="IOptions{TOptions}"/> into a constructor
+    /// </summary>
+    /// <returns>
+    /// A <typeparamref name="TSettings"/> instance hydrated with settings from configuration.
+    /// These are not validated, but are necessary for use when configuring the service on startup.
+    /// </returns>
+    public TSettings WithSettings<TSettings>()
+        where TSettings : class
+    {
+        _builder.Services.AddRequiredSettings<TSettings>();
+        _settingsTypes.Add(typeof(TSettings));
+        return _builder.Configuration.GetRequiredSettings<TSettings>();
+    }
+
+    /// <summary>
     /// Registers dependencies for this library as well as for the calling service's
     /// </summary>
     /// <param name="autofacModulesToRegister">Any custom Autofac modules that should also be registered</param>
     public SuperHostBuilder WithDependenciesRegistered(Module[] autofacModulesToRegister)
     {
-        _builder.ConfigureContainer<ContainerBuilder>(new AutofacServiceProviderFactory(),
-            containerBuilder =>
+        void ConfigureAutofac(ContainerBuilder containerBuilder)
+        {
+            containerBuilder.RegisterModule(new SuperAutofacModule());
+            foreach (var autofacModule in autofacModulesToRegister)
             {
-                containerBuilder.RegisterModule(new SuperAutofacModule());
-                foreach (var autofacModule in autofacModulesToRegister)
-                {
-                    containerBuilder.RegisterModule(autofacModule);
-                }
-            });
-        return this;
-    }
-
-    /// <summary>
-    /// Adds the specified serviced as a Hosted Service and Windows Service
-    /// </summary>
-    public SuperHostBuilder WithHostedWindowsService<THostedService>()
-        where THostedService : class, IHostedService
-    {
-        _builder.Services.AddHostedService<THostedService>();
-        _builder.Services.AddWindowsService();
+                containerBuilder.RegisterModule(autofacModule);
+            }
+        }
+        _builder.RegisterDependencies(new AutofacServiceProviderFactory(), ConfigureAutofac);
         return this;
     }
 
@@ -93,7 +116,7 @@ public class SuperHostBuilder
         return this;
     }
 
-    /// <summary>
+        /// <summary>
     /// Configures <typeparamref name="TClientInterface"/> as a Refit client, setting other conventional defaults.
     /// </summary>
     /// <param name="configureHttpClient">Action to take when configuring the <see cref="HttpClient"/></param>
@@ -122,7 +145,7 @@ public class SuperHostBuilder
                 AuthorizationHeaderValueGetter = (_, cancellationToken) => AuthBearerTokenFactory.GetBearerTokenAsync(cancellationToken)
             };
         }
-        var builder = _builder.Services.AddRefitClient<TClientInterface>(refitSettings);
+        IHttpClientBuilder builder = _builder.Services.AddRefitClient<TClientInterface>(refitSettings);
         if (disableAutoRedirect) builder = builder.DisableAutoRedirect();
         builder
             .ConfigureHttpClient(configureHttpClient)
@@ -138,19 +161,18 @@ public class SuperHostBuilder
     }
 
     /// <summary>
-    /// Configures settings for a particular type, setting up DataAnnotations validation
-    /// for them and making them available throughout the application by injecting
-    /// <see cref="IOptions{TOptions}"/> into a constructor
+    /// Adds the specified serviced as a Hosted Service and Windows Service
     /// </summary>
-    /// <returns>
-    /// A <typeparamref name="TSettings"/> instance hydrated with settings from configuration.
-    /// These are not validated, but are necessary for use when configuring the service on startup.
-    /// </returns>
-    public TSettings WithSettings<TSettings>()
-        where TSettings : class
+    /// <exception cref="InvalidOperationException">Thrown when building a web application instead of a hosted one</exception>
+    private SuperHostBuilder WithHostedWindowsService<THostedService>()
+        where THostedService : class, IHostedService
     {
-        _builder.Services.AddRequiredSettings<TSettings>();
-        _settingsTypes.Add(typeof(TSettings));
-        return _builder.Configuration.GetRequiredSettings<TSettings>();
+        if (_builder is WebApplicationBuilderWrapper)
+        {
+            throw new InvalidOperationException("Cannot add web apps as hosted Windows services. Only host apps.");
+        }
+        _builder.Services.AddHostedService<THostedService>();
+        _builder.Services.AddWindowsService();
+        return this;
     }
 }

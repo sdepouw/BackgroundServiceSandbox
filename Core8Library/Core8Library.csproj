@@ -38,4 +38,9 @@
     <ProjectReference Include="..\Core7Library\Core7Library.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  
+
 </Project>

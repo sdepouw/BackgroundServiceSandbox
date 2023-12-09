@@ -1,10 +1,10 @@
 using Core7Library;
 using Core7Library.BearerTokenStuff;
 using Core7Library.CatFacts;
-using Core8Library;
+using Core8Library.SuperBuilder;
 using WorkServiceEight;
 
-SuperHostBuilder superBuilder = SuperHostBuilder.Create<Worker8>(new Core7LibraryAutofacModule());
+SuperHostBuilder superBuilder = SuperHostBuilder.CreateHostApp<Worker8>(new Core7LibraryAutofacModule());
 var mySettings = superBuilder.WithSettings<MySettings>();
 var catFactsSettings = superBuilder.WithSettings<CatFactsClientSettings>();
 IHost host = superBuilder
