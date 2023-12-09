@@ -8,7 +8,7 @@ using Core8WebAPI.Handlers;
 SuperWebApplicationBuilder builder = SuperWebApplicationBuilder.Create(new Core7LibraryAutofacModule());
 builder.WithSettings<ExampleSettings>();
 var catSettings = builder.WithSettings<CatFactsClientSettings>();
-builder.WithRefitClient<ICatFactsClient>(ConfigureCatFactsClient, enableRequestResponseLogging: true);
+builder.WithRefitClient<ICatFactsClient>(ConfigureCatFactsClient, enableRequestResponseLogging: false);
 
 void ConfigureCatFactsClient(HttpClient c)
 {
@@ -25,9 +25,10 @@ app.MapGet("/kaboom", () => { throw new NotImplementedException("Nobody here but
 
 app.MapGet("/real", (CancellationToken token) => app.Services.GetRequiredService<ISimpleHandler>().HandleAsync(token));
 app.MapGet("/stuff", (CancellationToken token) => app.Services.GetRequiredService<IPatienceHandler>().HandleAsync(token));
-app.MapGet("/cats", (CancellationToken token) => app.Services.GetRequiredService<ICatHandler>().HandleAsync(token));
+app.MapGet("/cats", (CancellationToken token) => app.Services.GetRequiredService<ICatHandler>().HandleAsync(token))
+    .AddEndpointFilter<RequestResponseLogFilter>();
 
-var apiGroup = app.MapGroup("/api").AddEndpointFilter<APIGuardFilter>();
+var apiGroup = app.MapGroup("/api").AddEndpointFilter<RequestResponseLogFilter>().AddEndpointFilter<APIGuardFilter>();
 apiGroup.MapGet("/guarded", (CancellationToken token) => app.Services.GetRequiredService<ISecretHandler>().HandleAsync(token));
 
 app.Run();
