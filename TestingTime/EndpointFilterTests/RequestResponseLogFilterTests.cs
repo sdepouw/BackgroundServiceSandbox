@@ -1,5 +1,7 @@
 ﻿using Core8WebAPI;
 using Core8WebAPI.Filters;
+using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -22,20 +24,26 @@ public class RequestResponseLogFilterTests : EndpointFilterTestBase
     {
         _settings.LogHttpRequestResponse = false;
 
-        await InvokeEndpointFilterAsync();
+        var result = await InvokeEndpointFilterAsync();
 
-        _mockedLogger.DidNotReceiveWithAnyArgs().Log(Arg.Any<LogLevel>(), Arg.Any<EventId>(), Arg.Any<object?>(), Arg.Any<Exception>(), Arg.Any<Func<object?, Exception?, string>>());
+        using (new AssertionScope())
+        {
+            _mockedLogger.DidNotReceiveWithAnyArgs().Log(Arg.Any<LogLevel>(), Arg.Any<EventId>(), Arg.Any<object?>(), Arg.Any<Exception>(), Arg.Any<Func<object?, Exception?, string>>());
+            EndpointFilterContinued(result).Should().BeTrue();
+        }
     }
 
     [Fact]
-    public async Task LogsSomethingWhenRequestResponseLoggingEnabled()
+    public async Task LogsInfoWhenRequestResponseLoggingEnabled()
     {
         _settings.LogHttpRequestResponse = true;
 
-        await InvokeEndpointFilterAsync();
+        var result = await InvokeEndpointFilterAsync();
 
-        _mockedLogger.Received().Log(Arg.Any<LogLevel>(), Arg.Any<EventId>(), Arg.Any<object?>(), Arg.Any<Exception>(), Arg.Any<Func<object?, Exception?, string>>());
+        using (new AssertionScope())
+        {
+            _mockedLogger.Received().Log(LogLevel.Information, Arg.Any<EventId>(), Arg.Any<object?>(), Arg.Any<Exception>(), Arg.Any<Func<object?, Exception?, string>>());
+            EndpointFilterContinued(result).Should().BeTrue();
+        }
     }
-
-
 }

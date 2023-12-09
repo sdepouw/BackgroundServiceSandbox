@@ -9,8 +9,8 @@ public abstract class EndpointFilterTestBase
     /// The <see cref="IEndpointFilter"/> under test
     /// </summary>
     protected abstract IEndpointFilter EndpointFilter { get; }
-    private readonly object? _nextReturnValue = Guid.NewGuid().ToString();
     private readonly HttpContext _httpContext = new DefaultHttpContext();
+    private readonly object? _nextReturnValue = Guid.NewGuid().ToString();
 
     /// <summary>
     /// Appends a given key/value pair as a header to the <see cref="HttpContext"/> that will
@@ -36,5 +36,5 @@ public abstract class EndpointFilterTestBase
     /// instead of returning a different result (e.g. <see cref="Results.NotFound"/>);
     /// useful for testing whether or not the <see cref="IEndpointFilter"/> returned a happy path scenario
     /// </summary>
-    protected bool EndpointFilterContinued(object? returnedResult) => returnedResult == _nextReturnValue;
+    protected bool EndpointFilterContinued(object? result) => result == _nextReturnValue;
 }
