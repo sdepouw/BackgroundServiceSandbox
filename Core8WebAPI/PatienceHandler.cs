@@ -2,11 +2,11 @@
 
 namespace Core8WebAPI;
 
-public class DifferentHandler(ILogger<DifferentHandler> logger, IOptions<ExampleSettings> settings) : IDifferentHandler
+public class PatienceHandler(ILogger<PatienceHandler> logger, IOptions<ExampleSettings> settings) : IPatienceHandler
 {
     private readonly ExampleSettings _settings = settings.Value;
 
-    public async Task<string> GimmeLongWaitAsync(CancellationToken cancellationToken)
+    public async Task<string> HandleAsync(CancellationToken cancellationToken)
     {
         try
         {
