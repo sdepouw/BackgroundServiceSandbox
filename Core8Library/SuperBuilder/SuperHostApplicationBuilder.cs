@@ -19,18 +19,18 @@ public class SuperHostApplicationBuilder : SuperHostBuilderBase<SuperHostApplica
     /// </summary>
     /// <param name="autofacModulesToRegister">Any custom Autofac modules that should also be registered</param>
     /// <typeparam name="THostedService">The worker service class to register</typeparam>
-    public static SuperHostApplicationBuilder CreateHostApp<THostedService>(params Module[] autofacModulesToRegister)
+    public static SuperHostApplicationBuilder Create<THostedService>(params Module[] autofacModulesToRegister)
         where THostedService : class, IHostedService
-        => CreateHostAppManually<THostedService>()
+        => CreateManually<THostedService>()
             .WithLogging()
             .WithDependenciesRegistered(autofacModulesToRegister);
 
     /// <summary>
     /// Only call this if you want to configure logging and DI manually.
     /// Still registers the app as a hosted service.
-    /// Normally, always call <see cref="CreateHostApp{THostedService}"/>.
+    /// Normally, always call <see cref="Create{THostedService}"/>.
     /// </summary>
-    public static SuperHostApplicationBuilder CreateHostAppManually<THostedService>()
+    public static SuperHostApplicationBuilder CreateManually<THostedService>()
         where THostedService : class, IHostedService
         => new SuperHostApplicationBuilder().WithHostedWindowsService<THostedService>();
 
