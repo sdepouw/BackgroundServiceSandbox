@@ -13,6 +13,8 @@ public class SuperHostApplicationBuilder : SuperHostBuilderBase<SuperHostApplica
     protected override void RegisterAutofac(AutofacServiceProviderFactory factory, Action<ContainerBuilder> configure)
         => _builder.ConfigureContainer(factory, configure);
 
+    private SuperHostApplicationBuilder() { }
+
     /// <summary>
     /// Creates a new <see cref="SuperHostApplicationBuilder"/> configured to run as a Windows service,
     /// with Serilog logging and dependencies registered with Autofac
@@ -36,7 +38,7 @@ public class SuperHostApplicationBuilder : SuperHostBuilderBase<SuperHostApplica
     /// Adds the specified serviced as a Hosted Service and Windows Service
     /// </summary>
     /// <exception cref="InvalidOperationException">Thrown when building a web application instead of a hosted one</exception>
-    private SuperHostApplicationBuilder WithHostedWindowsService<THostedService>()
+    public SuperHostApplicationBuilder WithHostedWindowsService<THostedService>()
         where THostedService : class, IHostedService
     {
         Builder.Services.AddHostedService<THostedService>();

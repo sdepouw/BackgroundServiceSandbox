@@ -16,11 +16,14 @@ public class SuperWebApplicationBuilder : SuperHostBuilderBase<SuperWebApplicati
     private SuperWebApplicationBuilder() { }
 
     /// <summary>
-    /// Creates a new <see cref="SuperWebApplicationBuilder"/>, with Serilog logging and dependencies registered with Autofac
+    /// Creates a new <see cref="SuperWebApplicationBuilder"/>, with Serilog logging and dependencies registered
+    /// with Autofac
     /// </summary>
     /// <param name="autofacModulesToRegister">Any custom Autofac modules that should also be registered</param>
     public static SuperWebApplicationBuilder Create(params Module[] autofacModulesToRegister)
-        => CreateManually().WithLogging().WithDependenciesRegistered(autofacModulesToRegister);
+        => CreateManually()
+            .WithLogging()
+            .WithDependenciesRegistered(autofacModulesToRegister);
 
     /// <summary>
     /// Only call this if you want to configure logging and DI manually.
