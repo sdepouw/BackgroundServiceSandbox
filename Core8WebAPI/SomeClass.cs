@@ -13,7 +13,7 @@ public class SomeClass
 
     public static async Task<IResult> TestingDI(IServiceProvider provider, ILogger<SomeClass> logger, CancellationToken token)
     {
-        var res = await provider.GetRequiredService<IExampleHandler>().GimmeLongWaitAsync(token);
+        var res = await provider.GetRequiredService<IDifferentHandler>().GimmeLongWaitAsync(token);
         logger.LogInformation("Result: {Result}", res);
         return Results.Ok(res);
     }
