@@ -1,5 +1,4 @@
 using System.Reflection;
-using Core8Library.SuperBuilder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -15,11 +14,11 @@ internal static class HostValidator
     /// <param name="host">The created <see cref="IHost"/> instance</param>
     /// <param name="settingsTypesToValidate">Collection of types that represent settings, to be validated</param>
     /// <exception cref="ApplicationException">Thrown if any validation error occurs</exception>
-    public static void Validate(IHost host, List<Type> settingsTypesToValidate)
+    public static void Validate<T>(IHost host, List<Type> settingsTypesToValidate)
     {
         // Validates Serilog
         EnableSerilogValidation();
-        var logger = host.Services.GetRequiredService<ILogger<SuperHostBuilder>>();
+        var logger = host.Services.GetRequiredService<ILogger<T>>();
         logger.LogDebug("[{Validator}] Beginning validation", nameof(HostValidator));
         Serilog.Debugging.SelfLog.Disable();
 
