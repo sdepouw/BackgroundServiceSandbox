@@ -1,10 +1,14 @@
 ﻿using System.Text.Json.Serialization;
+using Core7Library.BearerTokenStuff;
 using Refit;
 
 namespace Core7Library.CatFacts;
 
 public interface ICatFactsClient
 {
+    [Post("/oauth")]
+    public Task<ApiResponse<AuthToken?>> GetBearerTokenAsync(CancellationToken cancellationToken);
+
     /// <summary>
     /// Refit notes:
     /// - Always return <see cref="ApiResponse{T}"/> so that status code can be checked.

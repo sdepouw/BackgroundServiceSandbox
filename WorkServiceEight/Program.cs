@@ -1,5 +1,4 @@
 using Core7Library;
-using Core7Library.BearerTokenStuff;
 using Core7Library.CatFacts;
 using Core8Library.SuperBuilder;
 using WorkServiceEight;
@@ -8,7 +7,6 @@ SuperHostApplicationBuilder superBuilder = SuperHostApplicationBuilder.Create<Wo
 var mySettings = superBuilder.WithSettings<MySettings>();
 var catFactsSettings = superBuilder.WithSettings<CatFactsClientSettings>();
 IHost host = superBuilder
-    .WithRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("https://example.com/"), enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging)
     .WithRefitClient<ICatFactsClient>(ConfigureCatFactsClient, getBearerTokenAsyncFunc: GetBearerTokenAsyncFunc, enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging)
     .BuildAndValidate();
 
@@ -21,4 +19,4 @@ void ConfigureCatFactsClient(HttpClient c)
 }
 
 Task<string> GetBearerTokenAsyncFunc(IHost createdHost, CancellationToken token)
-    => createdHost.Services.GetRequiredService<IOAuthClientService>().GetBearerTokenAsync(token);
+    => createdHost.Services.GetRequiredService<ICatFactsClientService>().GetBearerTokenAsync(token);

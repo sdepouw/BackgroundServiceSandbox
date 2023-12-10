@@ -13,16 +13,14 @@ IHostBuilder builder = Host.CreateDefaultBuilder(args)
         services.AddHostedService<Worker7>();
         services.AddSerilog(config => config.ReadFrom.Configuration(hostBuilderContext.Configuration));
 
-        services.AddTransient<IOAuthClientService, OAuthClientService>();
         services.AddTransient<ICatFactsClientService, CatFactsClientService>();
 
         var mySettings = hostBuilderContext.GetRequiredSettings<MySettings>();
         var catFactsSettings = hostBuilderContext.GetRequiredSettings<CatFactsClientSettings>();
-        services.AddRefitClient<IOAuthClient>(c => c.BaseAddress = new Uri("https://example.com/"), enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging);
         services.AddRefitClient<ICatFactsClient>(c => c.BaseAddress = new Uri(catFactsSettings.Host), useAuthHeaderGetter: true, enableRequestResponseLogging: mySettings.EnableHttpRequestResponseLogging);
     });
 
 IHost host = builder.Build();
-Task<string> GetBearerTokenAsyncFunc(CancellationToken cancellationToken) => host.Services.GetRequiredService<IOAuthClientService>().GetBearerTokenAsync(cancellationToken);
+Task<string> GetBearerTokenAsyncFunc(CancellationToken cancellationToken) => host.Services.GetRequiredService<ICatFactsClientService>().GetBearerTokenAsync(cancellationToken);
 AuthBearerTokenFactory.SetBearerTokenGetterFunc(GetBearerTokenAsyncFunc);
 host.Run();

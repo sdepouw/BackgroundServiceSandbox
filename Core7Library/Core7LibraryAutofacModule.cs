@@ -9,6 +9,5 @@ public class Core7LibraryAutofacModule : Module
     protected override void Load(ContainerBuilder builder)
     {
         builder.RegisterType<CatFactsClientService>().As<ICatFactsClientService>();
-        builder.RegisterType<OAuthClientService>().As<IOAuthClientService>();
     }
 }
