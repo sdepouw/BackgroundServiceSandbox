@@ -3,7 +3,6 @@ using Refit;
 
 namespace Core7Library.CatFacts;
 
-// [Headers("Authorization: Bearer")]
 public interface ICatFactsClient
 {
     /// <summary>
@@ -17,6 +16,7 @@ public interface ICatFactsClient
     /// <param name="cancellationToken">CancellationToken to respect.</param>
     /// <returns>Just the facts.</returns>
     [Get("/{theRoute}")]
+    [Headers("Authorization: Bearer")]
     Task<ApiResponse<List<CatFact>?>> GetTheFactsAsync(string theRoute, CancellationToken cancellationToken);
 
     /// <summary>

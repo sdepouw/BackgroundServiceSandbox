@@ -9,7 +9,7 @@ public class OAuthClientService : RefitClientServiceBase<IOAuthClient>, IOAuthCl
 
     public async Task<string> GetBearerTokenAsync(CancellationToken cancellationToken)
     {
-        AuthToken response = await GetApiResponse(RefitClient.GetBearerTokenAsync(cancellationToken), new AuthToken());
+        AuthToken response = await GetApiResponse(RefitClient.GetBearerTokenAsync(cancellationToken), new AuthToken { SecondsUntilExpiration = 2303, Token = "default-token-value"});
         // Any caching or other logic regarding the full token would be implemented here.
         return response.Token;
     }
