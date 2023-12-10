@@ -25,22 +25,22 @@ public class HttpLoggingHandler : DelegatingHandler
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         Guid id = Guid.NewGuid();
-        _logger.LogDebug("[{Id}] Request: {Request}", id, request);
-        if (request.ContentIsTextBased())
-        {
-            var requestContent = await request.Content!.ReadAsStringAsync(cancellationToken);
-            _logger.LogDebug("[{Id}] Request Content: {RequestContent}", id, requestContent.TryFormatJson());
-        }
         Stopwatch.Restart();
         var response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
         Stopwatch.Stop();
-        _logger.LogDebug("[{Id}] Response [{RequestDuration}]: {Response}", id, Stopwatch.Elapsed, response);
+        _logger.LogInformation("[{Id}] Request: {Request}", id, request);
+        _logger.LogInformation("[{Id}] Response: {Response}", id, response);
+        if (request.ContentIsTextBased())
+        {
+            var requestContent = await request.Content!.ReadAsStringAsync(cancellationToken);
+            _logger.LogInformation("[{Id}] Request Content: {RequestContent}", id, requestContent.TryFormatJson());
+        }
         if (response.ContentIsTextBased())
         {
             Stopwatch.Restart();
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
             Stopwatch.Stop();
-            _logger.LogDebug("[{Id}] Response Content [{ResponseReadDuration}]: {ResponseContent}", id, Stopwatch.Elapsed, responseContent.TryFormatJson());
+            _logger.LogInformation("[{Id}] Response Content [{ResponseReadDuration}]: {ResponseContent}", id, Stopwatch.Elapsed, responseContent.TryFormatJson());
         }
         return response;
     }
